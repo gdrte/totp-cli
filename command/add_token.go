@@ -8,7 +8,7 @@ import (
 	"github.com/gdrte/totp-go/util"
 )
 
-// AddToken stucture is the representation of the add-token command
+// AddToken structure is the representation of the add-token command
 type AddToken struct {
 }
 

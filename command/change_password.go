@@ -5,7 +5,7 @@ import (
 	"github.com/gdrte/totp-go/util"
 )
 
-// ChangePassword stucture is the representation of the change-password command
+// ChangePassword structure is the representation of the change-password command
 type ChangePassword struct {
 }
 

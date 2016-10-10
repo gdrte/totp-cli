@@ -8,7 +8,7 @@ import (
 	"github.com/gdrte/totp-go/util"
 )
 
-// List stucture is the representation of the list command
+// List structure is the representation of the list command
 type List struct {
 }
 

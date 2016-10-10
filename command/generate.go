@@ -11,7 +11,7 @@ import (
 	"github.com/gdrte/totp-go/util"
 )
 
-// Generate stucture is the representation of the generate command
+// Generate structure is the representation of the generate command
 type Generate struct {
 }
 
