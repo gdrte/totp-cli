@@ -1,8 +1,8 @@
 package main
 
 import (
+	"github.com/Yitsushi/go-commander"
 	"github.com/gdrte/totp-go/command"
-	"github.com/gdrte/totp-go/commander"
 )
 
 func registerCommands(registry *commander.CommandRegistry) {
