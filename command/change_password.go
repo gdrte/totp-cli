@@ -1,7 +1,7 @@
 package command
 
 import (
-	"github.com/Yitsushi/go-commander"
+	"github.com/yitsushi/go-commander"
 	s "github.com/gdrte/totp-go/storage"
 	"github.com/gdrte/totp-go/util"
 )

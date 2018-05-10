@@ -5,7 +5,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/Yitsushi/go-commander"
+	"github.com/yitsushi/go-commander"
 	"github.com/gdrte/totp-go/security"
 	s "github.com/gdrte/totp-go/storage"
 	"github.com/gdrte/totp-go/util"

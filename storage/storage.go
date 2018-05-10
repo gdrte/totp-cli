@@ -98,7 +98,7 @@ func (s *Storage) FindNamespace(name string) (namespace *Namespace, err error) {
 		}
 	}
 	namespace = &Namespace{}
-	err = errors.New("Namespace not found.")
+	err = errors.New("Namespace not found")
 
 	return
 }

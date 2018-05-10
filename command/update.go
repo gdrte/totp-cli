@@ -8,9 +8,9 @@ import (
 	"os"
 	"runtime"
 
-	grc "github.com/Yitsushi/github-release-check"
-	"github.com/Yitsushi/go-commander"
 	"github.com/kardianos/osext"
+	grc "github.com/yitsushi/github-release-check"
+	"github.com/yitsushi/go-commander"
 
 	"github.com/gdrte/totp-go/info"
 	"github.com/gdrte/totp-go/util"

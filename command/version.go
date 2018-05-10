@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"runtime"
 
-	"github.com/Yitsushi/go-commander"
+	"github.com/yitsushi/go-commander"
 	"github.com/gdrte/totp-go/info"
 )
 
