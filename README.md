@@ -1,5 +1,6 @@
 [![Go Report Card](https://goreportcard.com/badge/github.com/gdrte/totp-go)](https://goreportcard.com/report/github.com/gdrte/totp-go)
 [![Build Status](https://travis-ci.org/gdrte/totp-go.svg?branch=master)](https://travis-ci.org/gdrte/totp-go)
+[![Coverage Status](https://coveralls.io/repos/github/gdrte/totp-go/badge.svg?branch=master)](https://coveralls.io/github/gdrte/totp-go?branch=master)
 
 This is a simple TOTP _(Time-based One-time Password)_ CLI tool.
 TOTP is the most common mechanism for 2FA _(Two-Factor-Authentication)_.
