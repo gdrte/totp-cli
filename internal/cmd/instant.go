@@ -8,7 +8,7 @@ import (
 	"github.com/yitsushi/go-commander"
 
 	"github.com/gdrte/totp-go/internal/security"
-	"github.com/gdrte/totp-go/internal/util"
+	"github.com/gdrte/totp-go/internal/terminal"
 )
 
 // Instant structure is the representation of the instant command.
@@ -18,7 +18,8 @@ type Instant struct{}
 func (c *Instant) Execute(opts *commander.CommandHelper) {
 	token := os.Getenv("TOTP_TOKEN")
 	if token == "" {
-		token = util.Read()
+		term := terminal.New(os.Stdin, os.Stdout, os.Stderr)
+		token, _ = term.Read("")
 	}
 
 	code, err := security.GenerateOTPCode(token, time.Now())
