@@ -1,5 +1,5 @@
 [![Go Report Card](https://goreportcard.com/badge/github.com/gdrte/totp-go)](https://goreportcard.com/report/github.com/gdrte/totp-go)
-[![Actions Status](https://github.com/gdrte/totp-go/actions/workflows/pr-checker.yaml/badge.svg)](https://github.com/gdrte/totp-go/actions/workflows/pr-checker.yaml)
+[![Actions Status](https://github.com/gdrte/totp-go/actions/workflows/quality-check.yaml/badge.svg)](https://github.com/gdrte/totp-go/actions/workflows/quality-check.yaml)
 [![Coverage Status](https://coveralls.io/repos/github/gdrte/totp-go/badge.svg?branch=main)](https://coveralls.io/github/gdrte/totp-go?branch=main)
 
 This is a simple TOTP _(Time-based One-time Password)_ CLI tool.
