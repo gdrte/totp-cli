@@ -13,7 +13,7 @@ Download the latest version of the application
 from the [releases page](https://github.com/gdrte/totp-go/releases/latest) or using the `go` tool:
 
 ```shell
-go install https://github.com/gdrte/totp-go@latest
+go install github.com/gdrte/totp-go@latest
 ```
 
 Users on macOS can also install the package using [MacPorts](https://ports.macports.org/port/totp-cli/summary):
