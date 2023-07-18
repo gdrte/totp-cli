@@ -47,14 +47,16 @@ issues:
   - path: internal/cmd/
     linters:
     - forbidigo
+  - text: "sig: func github.com/gdrte/totp-go/"
+    linters:
+    - wrapcheck
+  - text: "sig: func \\(\\*?github.com/gdrte/totp-go/"
+    linters:
+    - wrapcheck
 
 linters:
   enable-all: true
   disable:
-    # Go Generics
-    - rowserrcheck
-    - sqlclosecheck
-    - wastedassign
     # Deprecated
     - interfacer
     - nosnakecase
