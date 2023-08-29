@@ -1,12 +1,11 @@
-package cmd_test
+package security_test
 
 import (
 	"fmt"
+	"github.com/gdrte/totp-go/internal/security"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
-
-	"github.com/gdrte/totp-go/internal/cmd"
 )
 
 type PasswordPair struct {
@@ -29,7 +28,7 @@ func TestCheckPasswordConfirm(t *testing.T) {
 	for _, pair := range passwordPairs {
 		assert.Equal(
 			t,
-			cmd.CheckPasswordConfirm(pair.Password, pair.Confirm),
+			security.CheckPasswordConfirm(pair.Password, pair.Confirm),
 			pair.Correct,
 			fmt.Sprintf("%s == %s -> %t", pair.Password, pair.Confirm, pair.Correct),
 		)

@@ -5,6 +5,7 @@ import (
 
 	"github.com/urfave/cli/v2"
 
+	"github.com/gdrte/totp-go/internal/security"
 	s "github.com/gdrte/totp-go/internal/storage"
 	"github.com/gdrte/totp-go/internal/terminal"
 )
@@ -37,7 +38,7 @@ func ChangePasswordCommand() *cli.Command {
 				return err
 			}
 
-			if !CheckPasswordConfirm([]byte(newPasswordIn), []byte(newPasswordConfirmIn)) {
+			if !security.CheckPasswordConfirm([]byte(newPasswordIn), []byte(newPasswordConfirmIn)) {
 				return CommandError{Message: "new password and the confirm mismatch"}
 			}
 
