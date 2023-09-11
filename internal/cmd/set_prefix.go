@@ -30,9 +30,9 @@ func SetPrefixCommand() *cli.Command {
 			)
 
 			nsName, accName, prefix := askForSetPrefixDetails(
-				ctx.Args().Get(argPositionNamespace),
-				ctx.Args().Get(argPositionAccount),
-				ctx.Args().Get(argPositionPrefix),
+				ctx.Args().Get(argSetPrefixPositionNamespace),
+				ctx.Args().Get(argSetPrefixPositionAccount),
+				ctx.Args().Get(argSetPrefixPositionPrefix),
 				ctx.Bool("clear"),
 			)
 
