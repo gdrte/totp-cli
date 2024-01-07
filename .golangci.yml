@@ -63,6 +63,9 @@ issues:
   - text: "sig: func \\(\\*?github.com/gdrte/totp-go/"
     linters:
     - wrapcheck
+  - path: internal/info
+    linters:
+    - gochecknoglobals
 
 linters:
   enable-all: true
