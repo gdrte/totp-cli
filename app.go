@@ -5,7 +5,6 @@ import (
 	"os"
 
 	"github.com/urfave/cli/v2"
-
 	"github.com/gdrte/totp-go/internal/cmd"
 	"github.com/gdrte/totp-go/internal/info"
 )

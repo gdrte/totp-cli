@@ -6,7 +6,6 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/suite"
-
 	"github.com/gdrte/totp-go/internal/storage"
 )
 

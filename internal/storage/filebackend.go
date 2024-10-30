@@ -13,7 +13,6 @@ import (
 
 	"filippo.io/age"
 	"filippo.io/age/armor"
-
 	"github.com/gdrte/totp-go/internal/security"
 	"github.com/gdrte/totp-go/internal/terminal"
 )

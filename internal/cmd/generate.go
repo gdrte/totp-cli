@@ -5,7 +5,6 @@ import (
 	"time"
 
 	"github.com/urfave/cli/v2"
-
 	s "github.com/gdrte/totp-go/internal/storage"
 )
 

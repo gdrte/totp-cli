@@ -5,10 +5,9 @@ import (
 	"os"
 
 	"github.com/urfave/cli/v2"
-	"gopkg.in/yaml.v3"
-
 	s "github.com/gdrte/totp-go/internal/storage"
 	"github.com/gdrte/totp-go/internal/terminal"
+	"gopkg.in/yaml.v3"
 )
 
 // ImportCommand is the subcommand to import data from a YAML file.

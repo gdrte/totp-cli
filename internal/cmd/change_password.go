@@ -4,7 +4,6 @@ import (
 	"os"
 
 	"github.com/urfave/cli/v2"
-
 	"github.com/gdrte/totp-go/internal/security"
 	s "github.com/gdrte/totp-go/internal/storage"
 	"github.com/gdrte/totp-go/internal/terminal"
