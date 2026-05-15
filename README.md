@@ -16,6 +16,12 @@ from the [releases page](https://github.com/gdrte/totp-go/releases/latest) or us
 go install github.com/gdrte/totp-go@latest
 ```
 
+Users on Windows can install via [winget](https://learn.microsoft.com/en-us/windows/package-manager/winget/):
+
+```shell
+winget install --exact --id gdrte.totp-go
+```
+
 #### Alternative
 
 I'm not the maintainer of the MacPorts or the Homebrew package, if it's outdated
