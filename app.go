@@ -26,6 +26,7 @@ func newApplication() *cli.App {
 			cmd.ImportCommand(),
 			cmd.InstantCommand(),
 			cmd.ListCommand(),
+			cmd.ServeCommand(),
 			cmd.SetPrefixCommand(),
 			cmd.SetLengthCommand(),
 			cmd.RenameCommand(),

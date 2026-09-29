@@ -23,6 +23,7 @@ linters:
           allow:
             - $gostd
             - filippo.io/age
+            - github.com/glebarez/go-sqlite
             - github.com/kardianos/osext
             - github.com/urfave/cli/v2
             - github.com/yitsushi/github-release-check
