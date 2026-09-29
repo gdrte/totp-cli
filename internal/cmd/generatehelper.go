@@ -18,24 +18,11 @@ func formatCode(code string, remaining int64, showRemaining bool) string {
 }
 
 func generateCode(account *s.Account) (string, int64, error) {
-	var algorithm algo.Algorithm
-
-	switch account.Algorithm {
-	case defaultAlgorithm:
-		algorithm = algo.SHA1{}
-	case "sha256":
-		algorithm = algo.SHA256{}
-	case "sha512":
-		algorithm = algo.SHA512{}
-	default:
-		algorithm = algo.Default{}
-	}
-
 	code, remaining, err := security.GenerateOTPCode(security.GenerateOptions{
 		Token:      account.Token,
 		When:       time.Now(),
 		Length:     account.Length,
-		Algorithm:  algorithm,
+		Algorithm:  algo.ByName(account.Algorithm),
 		TimePeriod: account.TimePeriod,
 	})
 	if err != nil {

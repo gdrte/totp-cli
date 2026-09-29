@@ -86,6 +86,7 @@ COMMANDS:
    import           Import tokens from a yaml file.
    instant          Generate an OTP from TOTP_TOKEN or stdin without the Storage backend.
    list             List all available namespaces or accounts under a namespace.
+   serve            Serve a REST API and web UI for generating codes and registering accounts.
    set-prefix       Set prefix for a token.
    set-length       Set length for a token.
    rename           Rename an account or namespace
@@ -224,6 +225,75 @@ totp-cli generate --show-remaining namespace account
 Password: ***
 316762 (remaining time: 17s)
 ```
+
+### REST API and web UI (for automated tests and agents)
+
+`serve` exposes accounts over HTTP, so test suites and agents can fetch codes
+without the interactive prompt. It also serves a small web UI for registering
+sites (secret key or `otpauth://` URI) and viewing live codes.
+
+```shell
+export TOTP_PASS=...                # database password (or you'll be prompted)
+export TOTP_API_TOKEN=$(openssl rand -hex 32)
+totp-cli serve                      # http://127.0.0.1:8484
+```
+
+The server keeps its accounts in a SQLite database (default
+`~/.config/totp-cli/server.db`, set with `--db` or `TOTP_SERVER_DB`), separate
+from the CLI credentials file. Every request reads the database directly, so
+nothing is cached in memory. Account names and settings are stored in plain
+columns. Each token and prefix is encrypted with [age](https://github.com/FiloSottile/age)
+to a key created with the database, and that key is itself encrypted with your
+password. A copy of the database file alone reveals no secrets. To copy your
+CLI accounts into the database, run `totp-cli serve --import` (accounts that
+already exist are skipped).
+
+If `--api-token` / `TOTP_API_TOKEN` is not set, a random token is generated
+and printed on startup. By default the server listens on localhost only
+(`--listen` changes it). Anyone holding the token can generate codes for
+every stored account, so treat it like the password.
+
+Every `/api/v1` endpoint except `health` requires
+`Authorization: Bearer <token>`. Secrets are never returned.
+
+| Method   | Path                                           | Description                              |
+|----------|------------------------------------------------|------------------------------------------|
+| `GET`    | `/api/v1/health`                               | Liveness check (no auth).                |
+| `GET`    | `/api/v1/accounts`                             | List accounts (without secrets).         |
+| `POST`   | `/api/v1/accounts`                             | Register an account.                     |
+| `DELETE` | `/api/v1/accounts/{namespace}/{account}`       | Delete an account.                       |
+| `GET`    | `/api/v1/accounts/{namespace}/{account}/code`  | Current code.                            |
+
+Get a code. Pass `min_remaining=N` to make sure the code stays valid for at
+least `N` more seconds. If the current window is closer than that to expiring,
+the request waits for the next one, so a test never submits a code that has
+already expired:
+
+```shell
+curl -s -H "Authorization: Bearer $TOTP_API_TOKEN" \
+  'http://127.0.0.1:8484/api/v1/accounts/staging/qa-bot/code?min_remaining=5'
+```
+
+```json
+{"expiresAt":"2026-09-29T15:39:30Z","namespace":"staging","account":"qa-bot","code":"086405","remaining":27,"timePeriod":30}
+```
+
+Register an account with a base32 secret, or with the `otpauth://` URI that
+sites encode in their setup QR code. Namespace and account default to the
+URI's issuer and label, and explicit fields override values from the URI:
+
+```shell
+curl -s -H "Authorization: Bearer $TOTP_API_TOKEN" -X POST \
+  http://127.0.0.1:8484/api/v1/accounts \
+  -d '{"namespace":"staging","account":"qa-bot","secret":"JBSWY3DPEHPK3PXP"}'
+
+curl -s -H "Authorization: Bearer $TOTP_API_TOKEN" -X POST \
+  http://127.0.0.1:8484/api/v1/accounts \
+  -d '{"uri":"otpauth://totp/GitHub:ci@example.com?secret=JBSWY3DPEHPK3PXP&issuer=GitHub"}'
+```
+
+Optional fields: `prefix`, `algorithm` (`sha1`, `sha256`, `sha512`),
+`length` (digits) and `timePeriod` (seconds).
 
 ### Changing the location of the credentials file
 

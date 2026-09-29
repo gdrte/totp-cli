@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>totp-cli</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="app.js" defer></script>
+</head>
+<body>
+  <header class="bar">
+    <div class="brand">totp-cli <span class="muted">server</span></div>
+    <form id="token-form" class="token" autocomplete="off">
+      <label for="api-token" class="sr-only">API token</label>
+      <input id="api-token" type="password" placeholder="API token" spellcheck="false">
+      <button type="submit">Connect</button>
+    </form>
+  </header>
+
+  <main>
+    <p id="status" class="status" role="status" hidden></p>
+
+    <section class="card">
+      <h2>Register a site</h2>
+      <div class="tabs" role="tablist">
+        <button type="button" role="tab" class="tab" data-mode="secret" aria-selected="true">Secret key</button>
+        <button type="button" role="tab" class="tab" data-mode="uri" aria-selected="false">otpauth:// URI</button>
+      </div>
+
+      <form id="add-form" autocomplete="off">
+        <div class="grid">
+          <label>Namespace
+            <input name="namespace" placeholder="e.g. staging" spellcheck="false">
+          </label>
+          <label>Account
+            <input name="account" placeholder="e.g. test-user@example.com" spellcheck="false">
+          </label>
+        </div>
+
+        <label data-for="secret">Secret (base32)
+          <input name="secret" placeholder="JBSWY3DPEHPK3PXP" spellcheck="false" class="mono">
+        </label>
+
+        <label data-for="uri" hidden>otpauth URI
+          <input name="uri" placeholder="otpauth://totp/Example:alice?secret=...&amp;issuer=Example" spellcheck="false" class="mono">
+          <span class="hint">Namespace and account are taken from the URI's issuer and label when left blank.</span>
+        </label>
+
+        <details>
+          <summary>Advanced</summary>
+          <div class="grid four">
+            <label>Algorithm
+              <select name="algorithm">
+                <option value="">default (sha1)</option>
+                <option value="sha1">sha1</option>
+                <option value="sha256">sha256</option>
+                <option value="sha512">sha512</option>
+              </select>
+            </label>
+            <label>Digits
+              <input name="length" type="number" min="1" max="10" placeholder="6">
+            </label>
+            <label>Period (s)
+              <input name="timePeriod" type="number" min="1" placeholder="30">
+            </label>
+            <label>Prefix
+              <input name="prefix" spellcheck="false">
+            </label>
+          </div>
+        </details>
+
+        <button type="submit" class="primary">Register</button>
+      </form>
+    </section>
+
+    <section class="card">
+      <div class="card-head">
+        <h2>Accounts</h2>
+        <button type="button" id="refresh">Refresh</button>
+      </div>
+      <p id="empty" class="muted" hidden>No accounts yet.</p>
+      <ul id="accounts" class="accounts"></ul>
+    </section>
+  </main>
+
+  <template id="account-row">
+    <li class="account">
+      <div class="who">
+        <span class="ns"></span><span class="sep">/</span><span class="name"></span>
+        <div class="meta muted"></div>
+      </div>
+      <div class="code mono" title="Click to copy"></div>
+      <div class="timer" aria-hidden="true"><span></span></div>
+      <div class="actions">
+        <button type="button" data-action="curl" title="Copy curl command for agents">curl</button>
+        <button type="button" data-action="delete" class="danger">Delete</button>
+      </div>
+    </li>
+  </template>
+</body>
+</html>
