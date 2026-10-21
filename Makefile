@@ -15,6 +15,21 @@ build:
 build-gui:
 	CGO_ENABLED=1 $(GO) build -tags gui -ldflags "$(LDFLAGS)" -o bin/totp-gui ./cmd/totp-gui
 
+# macOS app bundle for the desktop app, with cmd/totp-gui/appicon.png as its
+# icon. Must run on macOS (it uses iconutil).
+GUI_APP := bin/TOTP Authenticator.app
+
+.PHONY: bundle-gui
+bundle-gui:
+	rm -rf "$(GUI_APP)"
+	$(GO) run gioui.org/cmd/gogio@v0.10.3 -target macos -arch $(shell $(GO) env GOARCH) -tags gui -ldflags "$(LDFLAGS)" \
+		-appid com.github.gdrte.totp-go -o "$(GUI_APP)" ./cmd/totp-gui
+
+# Regenerate the app icon from its SVG source (needs librsvg).
+.PHONY: appicon
+appicon:
+	rsvg-convert -w 1024 -h 1024 cmd/totp-gui/appicon.svg -o cmd/totp-gui/appicon.png
+
 .PHONY: test
 test:
 	$(GO) test \
