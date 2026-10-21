@@ -1,15 +1,17 @@
-// Package server exposes the TOTP storage over a small REST API with an
-// embedded web UI, so automated tests and agents can fetch codes without
-// driving the interactive CLI.
+// Package server exposes the TOTP storage over a small REST API, so
+// automated tests and agents can fetch codes without driving the
+// interactive CLI.
 package server
 
 import (
 	"context"
+	"crypto/rand"
 	"crypto/subtle"
-	"embed"
+	"encoding/hex"
 	"encoding/json"
+	"errors"
 	"fmt"
-	"io/fs"
+	"net"
 	"net/http"
 	"strings"
 	"time"
@@ -21,10 +23,12 @@ import (
 const (
 	maxRequestBodyBytes = 64 * 1024
 	bearerPrefix        = "Bearer "
+	generatedTokenBytes = 32
+	readHeaderTimeout   = 10 * time.Second
+	// writeTimeout must exceed the longest min_remaining wait on /code.
+	writeTimeout    = 3 * time.Minute
+	shutdownTimeout = 5 * time.Second
 )
-
-//go:embed ui
-var uiFiles embed.FS
 
 // WaitFunc blocks for the given duration or until the context is done.
 type WaitFunc func(ctx context.Context, d time.Duration) error
@@ -38,7 +42,7 @@ type Store interface {
 	Delete(ctx context.Context, namespace, name string) error
 }
 
-// Server serves the REST API and web UI on top of a Store. The store is
+// Server serves the REST API on top of a Store. The store is
 // queried on every request, so there is no in-memory copy to go stale.
 type Server struct {
 	store    Store
@@ -82,7 +86,7 @@ func New(store Store, apiToken string, opts ...Option) *Server {
 	return srv
 }
 
-// Handler returns the HTTP handler for the API and UI.
+// Handler returns the HTTP handler for the API.
 func (s *Server) Handler() http.Handler {
 	mux := http.NewServeMux()
 
@@ -92,10 +96,62 @@ func (s *Server) Handler() http.Handler {
 	mux.Handle("DELETE /api/v1/accounts/{namespace}/{account}", s.requireToken(s.handleDeleteAccount))
 	mux.Handle("GET /api/v1/accounts/{namespace}/{account}/code", s.requireToken(s.handleGetCode))
 
-	uiRoot, _ := fs.Sub(uiFiles, "ui")
-	mux.Handle("GET /", http.FileServerFS(uiRoot))
-
 	return securityHeaders(mux)
+}
+
+// Serve serves the API on listener until ctx is done, then shuts down
+// gracefully.
+func (s *Server) Serve(ctx context.Context, listener net.Listener) error {
+	httpServer := &http.Server{
+		Handler:           s.Handler(),
+		ReadHeaderTimeout: readHeaderTimeout,
+		WriteTimeout:      writeTimeout,
+	}
+
+	serveErr := make(chan error, 1)
+
+	go func() {
+		serveErr <- httpServer.Serve(listener)
+	}()
+
+	select {
+	case err := <-serveErr:
+		if errors.Is(err, http.ErrServerClosed) {
+			return nil
+		}
+
+		return fmt.Errorf("serve: %w", err)
+	case <-ctx.Done():
+	}
+
+	shutdownCtx, cancel := context.WithTimeout(context.WithoutCancel(ctx), shutdownTimeout)
+	defer cancel()
+
+	err := httpServer.Shutdown(shutdownCtx)
+	if err != nil {
+		return fmt.Errorf("shutdown: %w", err)
+	}
+
+	return nil
+}
+
+// IsLoopback reports whether addr is a loopback TCP address.
+func IsLoopback(addr net.Addr) bool {
+	tcpAddr, ok := addr.(*net.TCPAddr)
+
+	return ok && tcpAddr.IP.IsLoopback()
+}
+
+// RandomToken returns a random hex API token.
+func RandomToken() (string, error) {
+	buf := make([]byte, generatedTokenBytes)
+
+	_, err := rand.Read(buf)
+	if err != nil {
+		return "", fmt.Errorf("generate token: %w", err)
+	}
+
+	return hex.EncodeToString(buf), nil
 }
 
 func (s *Server) requireToken(next http.HandlerFunc) http.Handler {
@@ -120,7 +176,7 @@ func securityHeaders(next http.Handler) http.Handler {
 		headers.Set("X-Frame-Options", "DENY")
 		headers.Set("Referrer-Policy", "no-referrer")
 		headers.Set("Cache-Control", "no-store")
-		headers.Set("Content-Security-Policy", "default-src 'self'; frame-ancestors 'none'")
+		headers.Set("Content-Security-Policy", "default-src 'none'; frame-ancestors 'none'")
 
 		next.ServeHTTP(resp, req)
 	})

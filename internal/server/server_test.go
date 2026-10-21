@@ -3,6 +3,7 @@ package server
 import (
 	"context"
 	"encoding/json"
+	"net"
 	"net/http"
 	"net/http/httptest"
 	"path/filepath"
@@ -290,10 +291,44 @@ func (suite *ServerTestSuite) TestDeleteUnknown() {
 	suite.Equal(http.StatusNotFound, rec.Code)
 }
 
-func (suite *ServerTestSuite) TestServesUI() {
+func (suite *ServerTestSuite) TestNoWebUI() {
 	rec := suite.do(http.MethodGet, "/", "", false)
 
-	suite.Require().Equal(http.StatusOK, rec.Code)
-	suite.Contains(rec.Body.String(), "Register a site")
+	suite.Equal(http.StatusNotFound, rec.Code)
 	suite.Equal("DENY", rec.Header().Get("X-Frame-Options"))
+}
+
+func (suite *ServerTestSuite) TestServeStopsWithContext() {
+	listener, err := (&net.ListenConfig{}).Listen(context.Background(), "tcp", "127.0.0.1:0")
+	suite.Require().NoError(err)
+	suite.True(IsLoopback(listener.Addr()))
+
+	ctx, cancel := context.WithCancel(context.Background())
+	done := make(chan error, 1)
+
+	go func() {
+		done <- New(suite.store, testToken).Serve(ctx, listener)
+	}()
+
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, "http://"+listener.Addr().String()+"/api/v1/health", nil)
+	suite.Require().NoError(err)
+
+	resp, err := http.DefaultClient.Do(req)
+	suite.Require().NoError(err)
+	suite.Require().NoError(resp.Body.Close())
+	suite.Equal(http.StatusOK, resp.StatusCode)
+
+	cancel()
+	suite.NoError(<-done)
+}
+
+func (suite *ServerTestSuite) TestRandomToken() {
+	first, err := RandomToken()
+	suite.Require().NoError(err)
+
+	second, err := RandomToken()
+	suite.Require().NoError(err)
+
+	suite.Len(first, 64)
+	suite.NotEqual(first, second)
 }
