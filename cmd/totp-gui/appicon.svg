@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 1024 1024">
+  <!-- Source for appicon.png (make appicon). Laid out on the macOS icon grid:
+       an 824px tile centered on a 1024px canvas. -->
+  <defs>
+    <linearGradient id="tile" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#3b82f6"/>
+      <stop offset="1" stop-color="#4338ca"/>
+    </linearGradient>
+    <linearGradient id="gloss" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#ffffff" stop-opacity="0.18"/>
+      <stop offset="0.5" stop-color="#ffffff" stop-opacity="0"/>
+    </linearGradient>
+    <filter id="shadow" x="-10%" y="-10%" width="120%" height="125%">
+      <feDropShadow dx="0" dy="12" stdDeviation="14" flood-color="#0f172a" flood-opacity="0.35"/>
+    </filter>
+  </defs>
+
+  <!-- Tile -->
+  <rect x="100" y="100" width="824" height="824" rx="185" fill="url(#tile)" filter="url(#shadow)"/>
+  <rect x="100" y="100" width="824" height="824" rx="185" fill="url(#gloss)"/>
+
+  <!-- Countdown ring: the time left on the current code -->
+  <circle cx="512" cy="512" r="270" fill="none" stroke="#ffffff" stroke-opacity="0.22" stroke-width="56"/>
+  <circle cx="512" cy="512" r="270" fill="none" stroke="#ffffff" stroke-width="56" stroke-linecap="round"
+          stroke-dasharray="1230 1696" transform="rotate(-90 512 512)"/>
+
+  <!-- Padlock -->
+  <path d="M444 498 V440 a68 68 0 0 1 136 0 V498" fill="none" stroke="#ffffff" stroke-width="42"/>
+  <rect x="397" y="490" width="230" height="182" rx="36" fill="#ffffff"/>
+  <circle cx="512" cy="566" r="25" fill="#3f51d6"/>
+  <path d="M501 580 h22 l7 50 h-36 z" fill="#3f51d6"/>
+</svg>

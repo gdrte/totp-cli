@@ -311,6 +311,11 @@ make build-gui                      # bin/totp-gui
 ./bin/totp-gui                      # API on http://127.0.0.1:8484
 ```
 
+On macOS, `make bundle-gui` builds `bin/TOTP Authenticator.app` with the app
+icon, which you can drag into `/Applications`. The icon's source is
+`cmd/totp-gui/appicon.svg`; after editing it, run `make appicon` (needs
+`rsvg-convert` from librsvg) to regenerate `appicon.png`.
+
 It takes the same `--db`, `--listen` and `--api-token` options (and
 `TOTP_SERVER_DB`, `TOTP_API_TOKEN` and `TOTP_PASS` variables) as `serve`.
 The password is asked for in the window unless `TOTP_PASS` is set. Pass
