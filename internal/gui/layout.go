@@ -207,10 +207,16 @@ func (u *ui) layoutHeader(gtx C) D {
 	return layout.Flex{Alignment: layout.Middle}.Layout(
 		gtx,
 		layout.Rigid(func(gtx C) D {
-			title := material.H5(u.th, "totp-cli")
-			title.Font.Weight = font.Bold
+			return layout.Flex{Axis: layout.Vertical}.Layout(
+				gtx,
+				layout.Rigid(func(gtx C) D {
+					title := material.H5(u.th, appTitle)
+					title.Font.Weight = font.Bold
 
-			return title.Layout(gtx)
+					return title.Layout(gtx)
+				}),
+				layout.Rigid(u.muted(appSubtitle)),
+			)
 		}),
 		layout.Flexed(1, func(gtx C) D { return D{Size: image.Pt(gtx.Constraints.Min.X, 0)} }),
 		layout.Rigid(func(gtx C) D {
@@ -224,7 +230,7 @@ func (u *ui) layoutHeader(gtx C) D {
 					return layout.Flex{Alignment: layout.Middle}.Layout(
 						gtx,
 						layout.Rigid(func(gtx C) D {
-							l := material.Body2(u.th, "API http://"+u.apiAddr)
+							l := material.Body2(u.th, "API "+u.apiAddr)
 							l.Font = u.mono
 
 							return l.Layout(gtx)
