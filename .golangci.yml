@@ -23,6 +23,7 @@ linters:
           allow:
             - $gostd
             - filippo.io/age
+            - gioui.org
             - github.com/glebarez/go-sqlite
             - github.com/kardianos/osext
             - github.com/urfave/cli/v2
@@ -78,6 +79,14 @@ linters:
       - linters:
           - gochecknoglobals
         path: internal/info
+      # Gio layouts are declarative trees of dp sizes, short idiomatic
+      # names (gtx, th) and package-level colors.
+      - linters:
+          - funlen
+          - gochecknoglobals
+          - mnd
+          - varnamelen
+        path: internal/gui/
       - linters:
           - godox
         source: '// .* #\d+'

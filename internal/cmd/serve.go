@@ -2,17 +2,13 @@ package cmd
 
 import (
 	"context"
-	"crypto/rand"
-	"encoding/hex"
 	"errors"
 	"fmt"
 	"net"
-	"net/http"
 	"os"
 	"os/signal"
 	"path/filepath"
 	"syscall"
-	"time"
 
 	"github.com/urfave/cli/v2"
 	"github.com/gdrte/totp-go/internal/accountdb"
@@ -22,20 +18,13 @@ import (
 	"github.com/gdrte/totp-go/internal/terminal"
 )
 
-const (
-	defaultListenAddress = "127.0.0.1:8484"
-	generatedTokenBytes  = 32
-	readHeaderTimeout    = 10 * time.Second
-	// writeTimeout must exceed the longest min_remaining wait on /code.
-	writeTimeout    = 3 * time.Minute
-	shutdownTimeout = 5 * time.Second
-)
+const defaultListenAddress = "127.0.0.1:8484"
 
-// ServeCommand is the subcommand that starts the REST API and web UI.
+// ServeCommand is the subcommand that starts the REST API.
 func ServeCommand() *cli.Command {
 	return &cli.Command{
 		Name:  "serve",
-		Usage: "Serve a REST API and web UI for generating codes and registering accounts.",
+		Usage: "Serve a REST API for generating codes and registering accounts.",
 		Flags: []cli.Flag{
 			&cli.StringFlag{
 				Name:  "listen",
@@ -75,15 +64,15 @@ func ServeCommand() *cli.Command {
 
 			apiToken := ctx.String("api-token")
 			if apiToken == "" {
-				apiToken, err = randomToken()
+				apiToken, err = server.RandomToken()
 				if err != nil {
-					return err
+					return CommandError{Message: err.Error()}
 				}
 
 				fmt.Fprintf(os.Stderr, "Generated API token: %s\n", apiToken)
 			}
 
-			return runServer(ctx.Context, ctx.String("listen"), server.New(store, apiToken).Handler())
+			return runServer(ctx.Context, ctx.String("listen"), server.New(store, apiToken))
 		},
 	}
 }
@@ -185,7 +174,7 @@ func importCLIAccounts(ctx context.Context, term terminal.Terminal, store *accou
 	return nil
 }
 
-func runServer(parent context.Context, address string, handler http.Handler) error {
+func runServer(parent context.Context, address string, srv *server.Server) error {
 	ctx, stop := signal.NotifyContext(parent, os.Interrupt, syscall.SIGTERM)
 	defer stop()
 
@@ -194,58 +183,16 @@ func runServer(parent context.Context, address string, handler http.Handler) err
 		return CommandError{Message: err.Error()}
 	}
 
-	httpServer := &http.Server{
-		Handler:           handler,
-		ReadHeaderTimeout: readHeaderTimeout,
-		WriteTimeout:      writeTimeout,
-	}
-
-	if !isLoopback(listener.Addr()) {
+	if !server.IsLoopback(listener.Addr()) {
 		fmt.Fprintln(os.Stderr, "WARNING: listening on a non-loopback address; anyone with the token can generate codes.")
 	}
 
-	fmt.Fprintf(os.Stderr, "Serving on http://%s (Ctrl+C to stop)\n", listener.Addr())
+	fmt.Fprintf(os.Stderr, "Serving API on http://%s (Ctrl+C to stop)\n", listener.Addr())
 
-	serveErr := make(chan error, 1)
-
-	go func() {
-		serveErr <- httpServer.Serve(listener)
-	}()
-
-	select {
-	case err = <-serveErr:
-		if errors.Is(err, http.ErrServerClosed) {
-			return nil
-		}
-
-		return CommandError{Message: err.Error()}
-	case <-ctx.Done():
-	}
-
-	shutdownCtx, cancel := context.WithTimeout(context.WithoutCancel(ctx), shutdownTimeout)
-	defer cancel()
-
-	err = httpServer.Shutdown(shutdownCtx)
+	err = srv.Serve(ctx, listener)
 	if err != nil {
 		return CommandError{Message: err.Error()}
 	}
 
 	return nil
-}
-
-func isLoopback(addr net.Addr) bool {
-	tcpAddr, ok := addr.(*net.TCPAddr)
-
-	return ok && tcpAddr.IP.IsLoopback()
-}
-
-func randomToken() (string, error) {
-	buf := make([]byte, generatedTokenBytes)
-
-	_, err := rand.Read(buf)
-	if err != nil {
-		return "", CommandError{Message: err.Error()}
-	}
-
-	return hex.EncodeToString(buf), nil
 }

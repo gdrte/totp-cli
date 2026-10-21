@@ -86,7 +86,7 @@ COMMANDS:
    import           Import tokens from a yaml file.
    instant          Generate an OTP from TOTP_TOKEN or stdin without the Storage backend.
    list             List all available namespaces or accounts under a namespace.
-   serve            Serve a REST API and web UI for generating codes and registering accounts.
+   serve            Serve a REST API for generating codes and registering accounts.
    set-prefix       Set prefix for a token.
    set-length       Set length for a token.
    rename           Rename an account or namespace
@@ -226,11 +226,10 @@ Password: ***
 316762 (remaining time: 17s)
 ```
 
-### REST API and web UI (for automated tests and agents)
+### REST API and desktop app (for automated tests and agents)
 
 `serve` exposes accounts over HTTP, so test suites and agents can fetch codes
-without the interactive prompt. It also serves a small web UI for registering
-sites (secret key or `otpauth://` URI) and viewing live codes.
+without the interactive prompt.
 
 ```shell
 export TOTP_PASS=...                # database password (or you'll be prompted)
@@ -294,6 +293,29 @@ curl -s -H "Authorization: Bearer $TOTP_API_TOKEN" -X POST \
 
 Optional fields: `prefix`, `algorithm` (`sha1`, `sha256`, `sha512`),
 `length` (digits) and `timePeriod` (seconds).
+
+#### Desktop app
+
+`totp-gui` is a desktop app built with [Gio](https://gioui.org) on the same
+database. It registers sites (secret key or `otpauth://` URI), shows live codes
+with a countdown, and copies a code or a ready-made `curl` command for agents.
+While it is open it also serves the REST API above, so tests can fetch codes
+from it as they would from `totp-cli serve`.
+
+Gio needs cgo on macOS and Linux, so the app is a separate binary built with
+the `gui` build tag (on Linux, install Gio's
+[system dependencies](https://gioui.org/doc/install/linux) first):
+
+```shell
+make build-gui                      # bin/totp-gui
+./bin/totp-gui                      # API on http://127.0.0.1:8484
+```
+
+It takes the same `--db`, `--listen` and `--api-token` options (and
+`TOTP_SERVER_DB`, `TOTP_API_TOKEN` and `TOTP_PASS` variables) as `serve`.
+The password is asked for in the window unless `TOTP_PASS` is set. Pass
+`--listen ''` to run without the API. A generated token can be copied from the
+window header. Don't run it and `serve` on the same address at once.
 
 ### Changing the location of the credentials file
 

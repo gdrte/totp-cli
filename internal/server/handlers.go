@@ -43,7 +43,9 @@ type codeResponse struct {
 	TimePeriod int64     `json:"timePeriod"`
 }
 
-type addAccountRequest struct {
+// AccountRequest describes an account to register, by base32 secret or by
+// otpauth:// URI. It is the body of POST /api/v1/accounts.
+type AccountRequest struct {
 	Namespace  string `json:"namespace"`
 	Account    string `json:"account"`
 	Secret     string `json:"secret"`
@@ -94,13 +96,13 @@ func (s *Server) handleGetCode(resp http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	if minRemaining >= effectivePeriod(account.TimePeriod) {
+	if minRemaining >= EffectivePeriod(account.TimePeriod) {
 		writeError(resp, http.StatusBadRequest, "min_remaining must be less than the account's time period")
 
 		return
 	}
 
-	code, remaining, err := generateCode(account, s.now())
+	code, remaining, err := GenerateCode(account, s.now())
 	if err != nil {
 		writeError(resp, http.StatusInternalServerError, err.Error())
 
@@ -113,7 +115,7 @@ func (s *Server) handleGetCode(resp http.ResponseWriter, req *http.Request) {
 			return
 		}
 
-		code, remaining, err = generateCode(account, s.now())
+		code, remaining, err = GenerateCode(account, s.now())
 		if err != nil {
 			writeError(resp, http.StatusInternalServerError, err.Error())
 
@@ -126,13 +128,13 @@ func (s *Server) handleGetCode(resp http.ResponseWriter, req *http.Request) {
 		Account:    accName,
 		Code:       code,
 		Remaining:  remaining,
-		TimePeriod: effectivePeriod(account.TimePeriod),
+		TimePeriod: EffectivePeriod(account.TimePeriod),
 		ExpiresAt:  s.now().Add(time.Duration(remaining) * time.Second).Truncate(time.Second).UTC(),
 	})
 }
 
 func (s *Server) handleAddAccount(resp http.ResponseWriter, req *http.Request) {
-	var payload addAccountRequest
+	var payload AccountRequest
 
 	decoder := json.NewDecoder(http.MaxBytesReader(resp, req.Body, maxRequestBodyBytes))
 	decoder.DisallowUnknownFields()
@@ -144,7 +146,7 @@ func (s *Server) handleAddAccount(resp http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	nsName, account, err := payload.toAccount()
+	nsName, account, err := payload.Build()
 	if err != nil {
 		writeError(resp, http.StatusBadRequest, err.Error())
 
@@ -188,9 +190,10 @@ func writeStoreError(resp http.ResponseWriter, err error, subject string) {
 	}
 }
 
-// toAccount merges the optional otpauth URI with the explicit fields
-// (explicit fields win) and validates the result.
-func (req addAccountRequest) toAccount() (string, *storage.Account, error) {
+// Build merges the optional otpauth URI with the explicit fields (explicit
+// fields win) and validates the result. It returns the namespace and the
+// account to store; validation failures are RequestErrors.
+func (req AccountRequest) Build() (string, *storage.Account, error) {
 	nsName := req.Namespace
 	account := &storage.Account{
 		Name:       req.Account,
@@ -253,7 +256,7 @@ func validateAccount(nsName string, account *storage.Account) error {
 		account.TimePeriod = security.DefaultTimePeriod
 	}
 
-	_, _, err := generateCode(account, time.Now())
+	_, _, err := GenerateCode(account, time.Now())
 	if err != nil {
 		return RequestError{Message: "secret is not valid base32"}
 	}
@@ -274,7 +277,9 @@ func parseMinRemaining(raw string) (int64, error) {
 	return value, nil
 }
 
-func generateCode(account *storage.Account, when time.Time) (string, int64, error) {
+// GenerateCode returns the account's code (with its prefix) at the given
+// time and the seconds left until it expires.
+func GenerateCode(account *storage.Account, when time.Time) (string, int64, error) {
 	code, remaining, err := security.GenerateOTPCode(security.GenerateOptions{
 		Token:      account.Token,
 		When:       when,
@@ -300,12 +305,14 @@ func summarize(entry accountdb.Entry) accountSummary {
 		Account:    entry.Name,
 		Algorithm:  firstNonEmpty(entry.Algorithm, "sha1"),
 		Length:     length,
-		TimePeriod: effectivePeriod(entry.TimePeriod),
+		TimePeriod: EffectivePeriod(entry.TimePeriod),
 		HasPrefix:  entry.HasPrefix,
 	}
 }
 
-func effectivePeriod(period int64) int64 {
+// EffectivePeriod returns the account's time period, or the default when
+// none is set.
+func EffectivePeriod(period int64) int64 {
 	if period <= 0 {
 		return security.DefaultTimePeriod
 	}

@@ -10,6 +10,11 @@ LDFLAGS := -s -w \
 build:
 	CGO_ENABLED=0 $(GO) build -ldflags "$(LDFLAGS)" -o bin/totp-cli .
 
+# The desktop app needs cgo (Gio uses the native windowing APIs).
+.PHONY: build-gui
+build-gui:
+	CGO_ENABLED=1 $(GO) build -tags gui -ldflags "$(LDFLAGS)" -o bin/totp-gui ./cmd/totp-gui
+
 .PHONY: test
 test:
 	$(GO) test \
@@ -28,6 +33,7 @@ lint:
 	$(GO) tool golint -set_exit_status ./...
 	$(GO) tool testifylint -v -enable-all ./...
 	$(GO) tool golangci-lint run
+	$(GO) tool golangci-lint run --build-tags gui ./internal/gui/... ./cmd/...
 
 .PHONY: install-dependencies
 install-dependencies:
