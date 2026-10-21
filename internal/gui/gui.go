@@ -33,8 +33,10 @@ import (
 )
 
 const (
-	modeSecret = "secret"
-	modeURI    = "uri"
+	appTitle    = "TOTP Authenticator"
+	appSubtitle = "2FA codes for you, your tests and your agents"
+	modeSecret  = "secret"
+	modeURI     = "uri"
 	// deleteConfirmWindow is how long a Delete click stays armed.
 	deleteConfirmWindow = 3 * time.Second
 	// codeErrorRetry is how long to wait before retrying a failed code.
@@ -77,7 +79,7 @@ func Run(ctx context.Context, cfg Config) error {
 	}
 
 	win := new(app.Window)
-	win.Option(app.Title("totp-cli"), app.Size(unit.Dp(760), unit.Dp(820)), app.MinSize(unit.Dp(520), unit.Dp(480)))
+	win.Option(app.Title(appTitle), app.Size(unit.Dp(760), unit.Dp(820)), app.MinSize(unit.Dp(520), unit.Dp(480)))
 
 	ui := newUI(ctx, cfg, store, win, initialized)
 
