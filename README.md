@@ -416,6 +416,7 @@ make test                           # unit tests with coverage
 make lint                           # go vet and golangci-lint (incl. the gui build tag)
 make build-gui && ./bin/totp-gui    # run the desktop app
 make screenshots                    # re-render docs/screenshots after UI changes
+make docs                           # copy this README to docs/index.md (GitHub Pages)
 ```
 
 The desktop app lives behind the `gui` build tag (`cmd/totp-gui`,
