@@ -110,6 +110,15 @@ type ui struct {
 	registerBtn widget.Clickable
 	copyTok     widget.Clickable
 	unlockBtn   widget.Clickable
+	helpBtn     widget.Clickable
+	helpBack    widget.Clickable
+	helpTabs    [helpTopicCount]widget.Clickable
+	helpCopy    []widget.Clickable
+	helpList    widget.List
+	helpCopied  int
+	helpCopyAt  time.Time
+	helpTopic   helpTopic
+	showHelp    bool
 	cfg         Config
 	status      string
 	apiToken    string
@@ -168,6 +177,7 @@ func newUI(ctx context.Context, cfg Config, store *accountdb.DB, win *app.Window
 	}
 
 	u.list.Axis = layout.Vertical
+	u.helpList.Axis = layout.Vertical
 	u.mode.Value = modeSecret
 
 	for _, e := range []*widget.Editor{

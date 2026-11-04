@@ -25,6 +25,20 @@ bundle-gui:
 	$(GO) run gioui.org/cmd/gogio@v0.10.3 -target macos -arch $(shell $(GO) env GOARCH) -tags gui -ldflags "$(LDFLAGS)" \
 		-appid com.github.gdrte.totp-go -o "$(GUI_APP)" ./cmd/totp-gui
 
+# Windows builds cross-compile from any OS (Gio needs no cgo on Windows).
+# Set WINDOWS_ARCH=arm64 for ARM machines.
+WINDOWS_ARCH ?= amd64
+
+.PHONY: build-windows
+build-windows:
+	CGO_ENABLED=0 GOOS=windows GOARCH=$(WINDOWS_ARCH) $(GO) build -ldflags "$(LDFLAGS)" -o bin/totp-cli.exe .
+
+# The desktop app as a Windows .exe with the app icon and no console window.
+.PHONY: build-gui-windows
+build-gui-windows:
+	$(GO) run gioui.org/cmd/gogio@v0.10.3 -target windows -arch $(WINDOWS_ARCH) -tags gui -ldflags "$(LDFLAGS)" \
+		-appid com.github.gdrte.totp-go -o bin/totp-gui.exe ./cmd/totp-gui
+
 # Regenerate the app icon from its SVG source (needs librsvg).
 .PHONY: appicon
 appicon:

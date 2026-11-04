@@ -55,6 +55,15 @@ var (
 func (u *ui) layout(gtx C) D {
 	paint.Fill(gtx.Ops, colorBg)
 
+	if u.helpBtn.Clicked(gtx) {
+		u.showHelp = true
+		u.setStatus("", false)
+	}
+
+	if u.showHelp {
+		return u.layoutHelp(gtx)
+	}
+
 	if !u.unlocked {
 		return u.layoutLock(gtx)
 	}
@@ -132,6 +141,8 @@ func (u *ui) layoutLock(gtx C) D {
 					return u.button(gtx, &u.unlockBtn, action, colorAccent)
 				}),
 				layout.Rigid(u.layoutStatus),
+				gap(12),
+				layout.Rigid(func(gtx C) D { return u.link(gtx, &u.helpBtn, "Help") }),
 			)
 
 			return layout.Flex{Axis: layout.Vertical}.Layout(gtx, children...)
@@ -193,7 +204,12 @@ func (u *ui) layoutMain(gtx C) D {
 		items = append(items, func(gtx C) D { return u.layoutRow(gtx, r) })
 	}
 
-	return material.List(u.th, &u.list).Layout(gtx, len(items), func(gtx C, i int) D {
+	return u.layoutColumn(gtx, &u.list, items)
+}
+
+// layoutColumn lays out items as a scrolling, width-capped column.
+func (u *ui) layoutColumn(gtx C, list *widget.List, items []layout.Widget) D {
+	return material.List(u.th, list).Layout(gtx, len(items), func(gtx C, i int) D {
 		return layout.Inset{Left: 16, Right: 16, Top: 6, Bottom: 6}.Layout(gtx, func(gtx C) D {
 			gtx.Constraints.Max.X = min(gtx.Constraints.Max.X, gtx.Dp(maxContentWidth))
 			gtx.Constraints.Min.X = gtx.Constraints.Max.X
@@ -223,20 +239,28 @@ func (u *ui) layoutHeader(gtx C) D {
 			return layout.Flex{Axis: layout.Vertical, Alignment: layout.End}.Layout(
 				gtx,
 				layout.Rigid(func(gtx C) D {
-					if u.apiAddr == "" {
-						return D{}
-					}
-
 					return layout.Flex{Alignment: layout.Middle}.Layout(
 						gtx,
 						layout.Rigid(func(gtx C) D {
+							if u.apiAddr == "" {
+								return D{}
+							}
+
 							l := material.Body2(u.th, "API "+u.apiAddr)
 							l.Font = u.mono
 
 							return l.Layout(gtx)
 						}),
 						hgap(8),
-						layout.Rigid(func(gtx C) D { return u.button(gtx, &u.copyTok, "Copy token", colorSubtle) }),
+						layout.Rigid(func(gtx C) D {
+							if u.apiAddr == "" {
+								return D{}
+							}
+
+							return u.button(gtx, &u.copyTok, "Copy token", colorSubtle)
+						}),
+						hgap(12),
+						layout.Rigid(func(gtx C) D { return u.link(gtx, &u.helpBtn, "Help") }),
 					)
 				}),
 				layout.Rigid(func(gtx C) D {
@@ -493,6 +517,17 @@ func (u *ui) button(gtx C, btn *widget.Clickable, label string, bg color.NRGBA) 
 	}
 
 	return b.Layout(gtx)
+}
+
+// link draws label as clickable accent-colored text.
+func (u *ui) link(gtx C, btn *widget.Clickable, label string) D {
+	return material.Clickable(gtx, btn, func(gtx C) D {
+		l := material.Body1(u.th, label)
+		l.Color = colorAccent
+		l.Font.Weight = font.SemiBold
+
+		return layout.Inset{Left: 2, Right: 2}.Layout(gtx, l.Layout)
+	})
 }
 
 func (u *ui) muted(txt string) layout.Widget {
