@@ -78,7 +78,7 @@ COMMANDS:
    import           Import tokens from a yaml file.
    instant          Generate an OTP from TOTP_TOKEN or stdin without the Storage backend.
    list             List all available namespaces or accounts under a namespace.
-   serve            Serve a REST API for generating codes and registering accounts.
+   serve            Serve a REST API and MCP endpoint for generating codes and registering accounts.
    set-prefix       Set prefix for a token.
    set-length       Set length for a token.
    rename           Rename an account or namespace
@@ -221,8 +221,8 @@ Password: ***
 
 ### REST API and desktop app (for automated tests and agents)
 
-`serve` exposes accounts over HTTP, so test suites and agents can fetch codes
-without the interactive prompt.
+`serve` exposes accounts over HTTP, as a REST API and an MCP endpoint, so
+test suites and agents can fetch codes without the interactive prompt.
 
 ```shell
 export TOTP_PASS=...                # database password (or you'll be prompted)
@@ -287,13 +287,51 @@ curl -s -H "Authorization: Bearer $TOTP_API_TOKEN" -X POST \
 Optional fields: `prefix`, `algorithm` (`sha1`, `sha256`, `sha512`),
 `length` (digits) and `timePeriod` (seconds).
 
+#### MCP endpoint
+
+The server also speaks the [Model Context Protocol](https://modelcontextprotocol.io)
+at `/mcp` (streamable HTTP), with the same bearer token, so agents can use the
+accounts as tools instead of shelling out to `curl`:
+
+| Tool             | Description                                                        |
+|------------------|--------------------------------------------------------------------|
+| `list_accounts`  | List accounts (without secrets).                                   |
+| `get_code`       | Current code; `min_remaining` waits for a fresh one, as in the API. |
+| `add_account`    | Register by base32 `secret` or `otpauth://` `uri`.                 |
+| `delete_account` | Delete an account.                                                 |
+
+Add it to Claude Code:
+
+```shell
+claude mcp add --transport http totp http://127.0.0.1:8484/mcp \
+  --header "Authorization: Bearer $TOTP_API_TOKEN"
+```
+
+or to any MCP client that takes a JSON config:
+
+```json
+{
+  "mcpServers": {
+    "totp": {
+      "type": "http",
+      "url": "http://127.0.0.1:8484/mcp",
+      "headers": { "Authorization": "Bearer <token>" }
+    }
+  }
+}
+```
+
+The endpoint is stateless (no sessions; each request is answered with JSON),
+and requests that reach a localhost address with a non-localhost `Host` header
+are rejected to block DNS rebinding.
+
 #### Desktop app
 
 `totp-gui` is a desktop app built with [Gio](https://gioui.org) on the same
 database. It registers sites (secret key or `otpauth://` URI), shows live codes
 with a countdown, and copies a code or a ready-made `curl` command for agents.
-While it is open it also serves the REST API above, so tests can fetch codes
-from it as they would from `totp-cli serve`.
+While it is open it also serves the REST API and MCP endpoint above, so tests
+and agents can fetch codes from it as they would from `totp-cli serve`.
 
 Gio needs cgo on macOS and Linux, so the app is a separate binary built with
 the `gui` build tag (on Linux, install Gio's

@@ -133,7 +133,7 @@ func cliHelp() []helpBlock {
 		code("totp-cli dump --output backup.yaml\ntotp-cli import --input backup.yaml"),
 
 		heading("Serve the REST API"),
-		para("serve exposes the app's database over HTTP, the same API this window serves. " +
+		para("serve exposes the app's database over HTTP, the same REST API and MCP endpoint this window serves. " +
 			"--import copies the CLI's accounts into the database first. See the REST API tab."),
 		code("totp-cli serve\ntotp-cli serve --import --listen 127.0.0.1:8484"),
 	}
@@ -204,7 +204,8 @@ func apiHelp(env helpEnv) []helpBlock {
 			"GET    /api/v1/accounts                            list accounts\n" +
 			"POST   /api/v1/accounts                            register an account\n" +
 			"DELETE /api/v1/accounts/{namespace}/{account}      delete an account\n" +
-			"GET    /api/v1/accounts/{namespace}/{account}/code current code"),
+			"GET    /api/v1/accounts/{namespace}/{account}/code current code\n" +
+			"POST   /mcp                                        MCP endpoint for agents"),
 
 		heading("Get a code"),
 		para("min_remaining=N (0–120) guarantees the code stays valid for at least N more seconds. If the " +
@@ -226,6 +227,16 @@ func apiHelp(env helpEnv) []helpBlock {
 		code(auth + base + "/accounts"),
 		code(auth + "-X DELETE " + base + "/accounts/staging/qa-bot"),
 		code("curl -s " + base + "/health"),
+
+		heading("MCP for agents"),
+		para("The same address serves an MCP endpoint at /mcp (streamable HTTP), with the same token. " +
+			"Agents get the tools list_accounts, get_code (with min_remaining), add_account and " +
+			"delete_account. Add it to Claude Code with:"),
+		code(`claude mcp add --transport http totp http://` + addr + `/mcp ` +
+			`--header "Authorization: Bearer $TOTP_API_TOKEN"`),
+		para("Or in an MCP client's JSON config:"),
+		code(`{"mcpServers": {"totp": {"type": "http", "url": "http://` + addr + `/mcp",` + "\n" +
+			`  "headers": {"Authorization": "Bearer <paste token>"}}}}`),
 
 		heading("Errors"),
 		para(`Errors are JSON, e.g. {"error":"account not found"}: 400 bad request, 401 missing or wrong token, ` +
