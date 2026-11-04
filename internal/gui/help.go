@@ -23,6 +23,7 @@ const (
 	helpGUI helpTopic = iota
 	helpCLI
 	helpAPI
+	helpMCP
 	helpTopicCount
 )
 
@@ -32,6 +33,8 @@ func (t helpTopic) label() string {
 		return "Desktop app"
 	case helpAPI:
 		return "REST API"
+	case helpMCP:
+		return "MCP"
 	case helpCLI, helpTopicCount:
 	}
 
@@ -85,12 +88,30 @@ func (e helpEnv) exampleAddr() string {
 
 const defaultExampleAddr = "127.0.0.1:8484"
 
+// serverStatus says whether this window is serving what, e.g.
+// "the MCP endpoint at http://127.0.0.1:8484/mcp".
+func (e helpEnv) serverStatus(what string) string {
+	switch {
+	case e.apiAddr != "":
+		return "This window serves " + what + "."
+	case e.listen == "":
+		return "The API and MCP endpoint are disabled in this window (started with --listen ''). " +
+			"Run totp-cli serve instead."
+	case e.apiNote != "":
+		return e.apiNote
+	}
+
+	return "The API and MCP endpoint start once the database is unlocked."
+}
+
 func helpContent(topic helpTopic, env helpEnv) []helpBlock {
 	switch topic {
 	case helpGUI:
 		return guiHelp(env)
 	case helpAPI:
 		return apiHelp(env)
+	case helpMCP:
+		return mcpHelp(env)
 	case helpCLI, helpTopicCount:
 	}
 
@@ -178,22 +199,10 @@ func apiHelp(env helpEnv) []helpBlock {
 	base := "http://" + addr + "/api/v1"
 	auth := `curl -s -H "Authorization: Bearer $TOTP_API_TOKEN" `
 
-	var status string
-
-	switch {
-	case env.apiAddr != "":
-		status = "This window serves the API at http://" + env.apiAddr + "."
-	case env.listen == "":
-		status = "The API is disabled in this window (started with --listen ''). Run totp-cli serve instead."
-	case env.apiNote != "":
-		status = env.apiNote
-	default:
-		status = "The API starts once the database is unlocked."
-	}
-
 	return []helpBlock{
 		heading("REST API"),
-		para(status + " Test suites and agents use it to register accounts and fetch codes."),
+		para(env.serverStatus("the API at http://"+addr) + " Test suites and agents use it to register accounts " +
+			"and fetch codes."),
 		para("Every endpoint except health needs the API token. Copy it from the header and export it:"),
 		code("export TOTP_API_TOKEN=<paste token>"),
 		para("Anyone with the token can generate codes for every account, so treat it like the password. " +
@@ -228,15 +237,9 @@ func apiHelp(env helpEnv) []helpBlock {
 		code(auth + "-X DELETE " + base + "/accounts/staging/qa-bot"),
 		code("curl -s " + base + "/health"),
 
-		heading("MCP for agents"),
-		para("The same address serves an MCP endpoint at /mcp (streamable HTTP), with the same token. " +
-			"Agents get the tools list_accounts, get_code (with min_remaining), add_account and " +
-			"delete_account. Add it to Claude Code with:"),
-		code(`claude mcp add --transport http totp http://` + addr + `/mcp ` +
-			`--header "Authorization: Bearer $TOTP_API_TOKEN"`),
-		para("Or in an MCP client's JSON config:"),
-		code(`{"mcpServers": {"totp": {"type": "http", "url": "http://` + addr + `/mcp",` + "\n" +
-			`  "headers": {"Authorization": "Bearer <paste token>"}}}}`),
+		heading("MCP"),
+		para("AI agents can use the same accounts as tools through the MCP endpoint at /mcp. " +
+			"See the MCP tab."),
 
 		heading("Errors"),
 		para(`Errors are JSON, e.g. {"error":"account not found"}: 400 bad request, 401 missing or wrong token, ` +
@@ -248,6 +251,67 @@ func apiHelp(env helpEnv) []helpBlock {
 		code("$env:TOTP_API_TOKEN = '<paste token>'\n" +
 			`Invoke-RestMethod -Headers @{Authorization = "Bearer $env:TOTP_API_TOKEN"} ` +
 			fmt.Sprintf(`"%s/accounts/staging/qa-bot/code?min_remaining=5"`, base)),
+	}
+}
+
+func mcpHelp(env helpEnv) []helpBlock {
+	url := "http://" + env.exampleAddr() + "/mcp"
+
+	return []helpBlock{
+		heading("MCP server"),
+		para(env.serverStatus("the MCP endpoint at "+url) + " It lets AI agents such as Claude Code fetch " +
+			"2FA codes as tools, so they can finish logins in tests and automations without curl."),
+		para("It uses the Streamable HTTP transport and the same token as the REST API. Copy the token " +
+			"from the header and export it:"),
+		code("export TOTP_API_TOKEN=<paste token>"),
+		para("Anyone with the token can generate codes for every account, so only give it to agents you trust."),
+
+		heading("Connect Claude Code"),
+		code(`claude mcp add --transport http totp ` + url + ` --header "Authorization: Bearer $TOTP_API_TOKEN"`),
+		para("The token is saved in Claude Code's config when you run this. Add --scope user to make it " +
+			"available in every project, and check the connection with /mcp inside Claude Code. " +
+			"A generated token changes every launch; pass --api-token (or set TOTP_API_TOKEN before " +
+			"starting the app) to keep it stable."),
+
+		heading("Other MCP clients"),
+		para("Clients that connect to HTTP servers take a JSON entry like this:"),
+		code(`{"mcpServers": {"totp": {` + "\n" +
+			`  "type": "http",` + "\n" +
+			`  "url": "` + url + `",` + "\n" +
+			`  "headers": {"Authorization": "Bearer <paste token>"}}}}`),
+		para("Clients that can only launch a local command (such as Claude Desktop) can bridge to it with " +
+			"mcp-remote, which needs Node.js:"),
+		code(`{"mcpServers": {"totp": {` + "\n" +
+			`  "command": "npx",` + "\n" +
+			`  "args": ["mcp-remote", "` + url + `", "--header", "Authorization:${AUTH_HEADER}"],` + "\n" +
+			`  "env": {"AUTH_HEADER": "Bearer <paste token>"}}}}`),
+
+		heading("Tools"),
+		para("list_accounts — every account's namespace, name, algorithm, digits and period. " +
+			"Secrets are never returned."),
+		para("get_code(namespace, account, min_remaining?) — the current code, the seconds it stays " +
+			"valid and when it expires. With min_remaining (0–120) the code is guaranteed to stay valid " +
+			"that long: if the current one expires sooner, the call waits for the next one."),
+		para("add_account(secret or uri, namespace?, account?, prefix?, algorithm?, length?, timePeriod?) — " +
+			"register a site from its base32 secret or the otpauth:// URI in its QR code. Namespace and " +
+			"account default to the URI's issuer and label. Fails if the account exists."),
+		para("delete_account(namespace, account) — delete an account and its secret. This cannot be undone."),
+		para("Errors use the same wording as the REST API, e.g. \"staging/qa-bot not found\"."),
+
+		heading("Example prompts"),
+		code("List my TOTP accounts.\n" +
+			"Log in to staging as qa-bot; when asked for 2FA, use get_code with min_remaining 5.\n" +
+			"Register this otpauth URI under the namespace staging: otpauth://totp/..."),
+
+		heading("Troubleshooting"),
+		para("401: the token is missing or wrong (a generated token changes every launch). " +
+			"403: the request reached localhost with another host name; use 127.0.0.1 or localhost " +
+			"in the URL. To check the endpoint without an agent:"),
+		code("curl -s " + url + " \\\n" +
+			"  -H \"Authorization: Bearer $TOTP_API_TOKEN\" \\\n" +
+			"  -H 'Content-Type: application/json' \\\n" +
+			"  -H 'Accept: application/json, text/event-stream' \\\n" +
+			`  -d '{"jsonrpc":"2.0","id":1,"method":"tools/list"}'`),
 	}
 }
 
