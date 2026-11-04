@@ -69,8 +69,8 @@ func WithWaitFunc(wait WaitFunc) Option {
 	}
 }
 
-// New creates a Server. Every /api/v1 endpoint except health requires the
-// request to carry "Authorization: Bearer <apiToken>".
+// New creates a Server. The MCP endpoint and every /api/v1 endpoint except
+// health require the request to carry "Authorization: Bearer <apiToken>".
 func New(store Store, apiToken string, opts ...Option) *Server {
 	srv := &Server{
 		store:    store,
@@ -95,6 +95,7 @@ func (s *Server) Handler() http.Handler {
 	mux.Handle("POST /api/v1/accounts", s.requireToken(s.handleAddAccount))
 	mux.Handle("DELETE /api/v1/accounts/{namespace}/{account}", s.requireToken(s.handleDeleteAccount))
 	mux.Handle("GET /api/v1/accounts/{namespace}/{account}/code", s.requireToken(s.handleGetCode))
+	mux.Handle(MCPPath, s.requireToken(s.mcpHandler().ServeHTTP))
 
 	return securityHeaders(mux)
 }

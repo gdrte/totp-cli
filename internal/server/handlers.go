@@ -3,7 +3,6 @@ package server
 import (
 	"encoding/json"
 	"errors"
-	"log"
 	"net/http"
 	"strconv"
 	"time"
@@ -61,76 +60,38 @@ func (s *Server) handleHealth(resp http.ResponseWriter, _ *http.Request) {
 }
 
 func (s *Server) handleListAccounts(resp http.ResponseWriter, req *http.Request) {
-	entries, err := s.store.List(req.Context())
+	summaries, err := s.listAccounts(req.Context())
 	if err != nil {
-		writeStoreError(resp, err, "")
+		writeOpError(resp, err)
 
 		return
-	}
-
-	summaries := make([]accountSummary, 0, len(entries))
-	for _, entry := range entries {
-		summaries = append(summaries, summarize(entry))
 	}
 
 	writeJSON(resp, http.StatusOK, summaries)
 }
 
 // handleGetCode returns the current code. With ?min_remaining=N it
-// guarantees the returned code stays valid for at least N more seconds,
-// waiting for the next window if needed, so tests don't race expiry.
+// guarantees the returned code stays valid for at least N more seconds.
 func (s *Server) handleGetCode(resp http.ResponseWriter, req *http.Request) {
-	nsName, accName := req.PathValue("namespace"), req.PathValue("account")
-
 	minRemaining, err := parseMinRemaining(req.URL.Query().Get("min_remaining"))
 	if err != nil {
-		writeError(resp, http.StatusBadRequest, err.Error())
+		writeOpError(resp, err)
 
 		return
 	}
 
-	account, err := s.store.Get(req.Context(), nsName, accName)
+	code, err := s.currentCode(req.Context(), req.PathValue("namespace"), req.PathValue("account"), minRemaining)
+	if errors.Is(err, errWaitAborted) {
+		return
+	}
+
 	if err != nil {
-		writeStoreError(resp, err, nsName+"/"+accName)
+		writeOpError(resp, err)
 
 		return
 	}
 
-	if minRemaining >= EffectivePeriod(account.TimePeriod) {
-		writeError(resp, http.StatusBadRequest, "min_remaining must be less than the account's time period")
-
-		return
-	}
-
-	code, remaining, err := GenerateCode(account, s.now())
-	if err != nil {
-		writeError(resp, http.StatusInternalServerError, err.Error())
-
-		return
-	}
-
-	if remaining < minRemaining {
-		err = s.wait(req.Context(), time.Duration(remaining)*time.Second)
-		if err != nil {
-			return
-		}
-
-		code, remaining, err = GenerateCode(account, s.now())
-		if err != nil {
-			writeError(resp, http.StatusInternalServerError, err.Error())
-
-			return
-		}
-	}
-
-	writeJSON(resp, http.StatusOK, codeResponse{
-		Namespace:  nsName,
-		Account:    accName,
-		Code:       code,
-		Remaining:  remaining,
-		TimePeriod: EffectivePeriod(account.TimePeriod),
-		ExpiresAt:  s.now().Add(time.Duration(remaining) * time.Second).Truncate(time.Second).UTC(),
-	})
+	writeJSON(resp, http.StatusOK, code)
 }
 
 func (s *Server) handleAddAccount(resp http.ResponseWriter, req *http.Request) {
@@ -146,29 +107,20 @@ func (s *Server) handleAddAccount(resp http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	nsName, account, err := payload.Build()
+	summary, err := s.addAccount(req.Context(), payload)
 	if err != nil {
-		writeError(resp, http.StatusBadRequest, err.Error())
+		writeOpError(resp, err)
 
 		return
 	}
 
-	err = s.store.Add(req.Context(), nsName, account)
-	if err != nil {
-		writeStoreError(resp, err, nsName+"/"+account.Name)
-
-		return
-	}
-
-	writeJSON(resp, http.StatusCreated, summarize(accountdb.EntryOf(nsName, account)))
+	writeJSON(resp, http.StatusCreated, summary)
 }
 
 func (s *Server) handleDeleteAccount(resp http.ResponseWriter, req *http.Request) {
-	nsName, accName := req.PathValue("namespace"), req.PathValue("account")
-
-	err := s.store.Delete(req.Context(), nsName, accName)
+	err := s.deleteAccount(req.Context(), req.PathValue("namespace"), req.PathValue("account"))
 	if err != nil {
-		writeStoreError(resp, err, nsName+"/"+accName)
+		writeOpError(resp, err)
 
 		return
 	}
@@ -176,18 +128,9 @@ func (s *Server) handleDeleteAccount(resp http.ResponseWriter, req *http.Request
 	resp.WriteHeader(http.StatusNoContent)
 }
 
-// writeStoreError maps store errors to HTTP statuses. Unexpected errors are
-// logged rather than returned, so database details don't leak to clients.
-func writeStoreError(resp http.ResponseWriter, err error, subject string) {
-	switch {
-	case errors.Is(err, accountdb.ErrNotFound):
-		writeError(resp, http.StatusNotFound, subject+" not found")
-	case errors.Is(err, accountdb.ErrExists):
-		writeError(resp, http.StatusConflict, subject+" already exists")
-	default:
-		log.Printf("store error: %v", err)
-		writeError(resp, http.StatusInternalServerError, "internal error")
-	}
+func writeOpError(resp http.ResponseWriter, err error) {
+	status, message := publicError(err)
+	writeError(resp, status, message)
 }
 
 // Build merges the optional otpauth URI with the explicit fields (explicit
@@ -270,8 +213,8 @@ func parseMinRemaining(raw string) (int64, error) {
 	}
 
 	value, err := strconv.ParseInt(raw, 10, 64)
-	if err != nil || value < 0 || value > maxMinRemaining {
-		return 0, RequestError{Message: "min_remaining must be an integer between 0 and " + strconv.Itoa(maxMinRemaining)}
+	if err != nil {
+		return 0, errMinRemainingRange
 	}
 
 	return value, nil

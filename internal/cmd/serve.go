@@ -24,7 +24,7 @@ const defaultListenAddress = "127.0.0.1:8484"
 func ServeCommand() *cli.Command {
 	return &cli.Command{
 		Name:  "serve",
-		Usage: "Serve a REST API for generating codes and registering accounts.",
+		Usage: "Serve a REST API and MCP endpoint for generating codes and registering accounts.",
 		Flags: []cli.Flag{
 			&cli.StringFlag{
 				Name:  "listen",
@@ -188,6 +188,7 @@ func runServer(parent context.Context, address string, srv *server.Server) error
 	}
 
 	fmt.Fprintf(os.Stderr, "Serving API on http://%s (Ctrl+C to stop)\n", listener.Addr())
+	fmt.Fprintf(os.Stderr, "MCP endpoint: http://%s%s\n", listener.Addr(), server.MCPPath)
 
 	err = srv.Serve(ctx, listener)
 	if err != nil {

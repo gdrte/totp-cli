@@ -25,6 +25,7 @@ linters:
             - filippo.io/age
             - gioui.org
             - github.com/glebarez/go-sqlite
+            - github.com/modelcontextprotocol/go-sdk
             - github.com/kardianos/osext
             - github.com/urfave/cli/v2
             - github.com/gdrte/totp-go
