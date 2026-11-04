@@ -39,6 +39,13 @@ build-gui-windows:
 	$(GO) run gioui.org/cmd/gogio@v0.10.3 -target windows -arch $(WINDOWS_ARCH) -tags gui -ldflags "$(LDFLAGS)" \
 		-appid com.github.gdrte.totp-go -o bin/totp-gui.exe ./cmd/totp-gui
 
+# Re-render the README screenshots of the desktop app (offscreen, sample data).
+.PHONY: screenshots
+screenshots:
+	mkdir -p docs/screenshots
+	SCREENSHOT_DIR=$(CURDIR)/docs/screenshots CGO_ENABLED=1 $(GO) test -tags 'gui screenshots' \
+		-run TestScreenshots -count=1 ./internal/gui
+
 # Regenerate the app icon from its SVG source (needs librsvg).
 .PHONY: appicon
 appicon:
