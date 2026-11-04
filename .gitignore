@@ -5,3 +5,4 @@ coverage.out
 dist/
 vendor/
 *.syso
+.DS_Store

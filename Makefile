@@ -46,6 +46,15 @@ screenshots:
 	SCREENSHOT_DIR=$(CURDIR)/docs/screenshots CGO_ENABLED=1 $(GO) test -tags 'gui screenshots' \
 		-run TestScreenshots -count=1 ./internal/gui
 
+# Copy README.md to docs/index.md for GitHub Pages: paths become relative to
+# docs/, and {{ is escaped so Jekyll's Liquid templating leaves it alone.
+.PHONY: docs
+docs:
+	sed -e 's#docs/screenshots/#screenshots/#g' \
+		-e 's#](LICENSE)#](https://github.com/gdrte/totp-go/blob/main/LICENSE)#g' \
+		-e 's#{{#{{ "{{" }}#g' \
+		README.md > docs/index.md
+
 # Regenerate the app icon from its SVG source (needs librsvg).
 .PHONY: appicon
 appicon:
