@@ -4,9 +4,9 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/urfave/cli/v2"
 	"github.com/gdrte/totp-go/internal/cmd"
 	"github.com/gdrte/totp-go/internal/info"
+	"github.com/urfave/cli/v2"
 )
 
 func newApplication() *cli.App {
@@ -26,13 +26,15 @@ func newApplication() *cli.App {
 			cmd.ImportCommand(),
 			cmd.InstantCommand(),
 			cmd.ListCommand(),
+			cmd.ServeCommand(),
 			cmd.SetPrefixCommand(),
 			cmd.SetLengthCommand(),
 			cmd.RenameCommand(),
 			cmd.UpdateCommand(),
 		},
 		Authors: []*cli.Author{
-			{Name: "Efertone", Email: "victoria@efertone.me"},
+			{Name: "Devanand GangiReddy"},
+			{Name: "Efertone (original totp-cli)", Email: "victoria@efertone.me"},
 		},
 		EnableBashCompletion: true,
 		ExitErrHandler: func(ctx *cli.Context, err error) {

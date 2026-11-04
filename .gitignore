@@ -4,3 +4,5 @@ coverage.out
 .idea
 dist/
 vendor/
+*.syso
+.DS_Store

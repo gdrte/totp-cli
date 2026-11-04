@@ -1,8 +1,8 @@
 package cmd
 
 import (
-	"github.com/urfave/cli/v2"
 	"github.com/gdrte/totp-go/internal/security"
+	"github.com/urfave/cli/v2"
 )
 
 func flagAlgorithm() *cli.StringFlag {

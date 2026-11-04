@@ -399,13 +399,23 @@ func (s *FileBackend) credentialsFilePath() (string, error) {
 		return filePath, nil
 	}
 
+	documentDirectory, err := ConfigDir()
+	if err != nil {
+		return "", err
+	}
+
+	return filepath.Join(documentDirectory, "credentials"), nil
+}
+
+// ConfigDir returns ~/.config/totp-cli, creating it with owner-only
+// permissions if it does not exist.
+func ConfigDir() (string, error) {
 	currentUser, err := user.Current()
 	if err != nil {
 		return "", BackendError{Message: err.Error()}
 	}
 
-	homePath := currentUser.HomeDir
-	documentDirectory := filepath.Join(homePath, ".config", "totp-cli")
+	documentDirectory := filepath.Join(currentUser.HomeDir, ".config", "totp-cli")
 
 	_, err = os.Stat(documentDirectory)
 	if os.IsNotExist(err) {
@@ -416,5 +426,5 @@ func (s *FileBackend) credentialsFilePath() (string, error) {
 		return "", BackendError{Message: err.Error()}
 	}
 
-	return filepath.Join(documentDirectory, "credentials"), nil
+	return documentDirectory, nil
 }

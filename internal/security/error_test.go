@@ -3,8 +3,8 @@ package security_test
 import (
 	"testing"
 
-	"github.com/stretchr/testify/suite"
 	"github.com/gdrte/totp-go/internal/security"
+	"github.com/stretchr/testify/suite"
 )
 
 func TestSecurityError(t *testing.T) {

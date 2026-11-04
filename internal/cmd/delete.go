@@ -4,9 +4,9 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/urfave/cli/v2"
 	s "github.com/gdrte/totp-go/internal/storage"
 	"github.com/gdrte/totp-go/internal/terminal"
+	"github.com/urfave/cli/v2"
 )
 
 // DeleteCommand is subcommand to delete an account or a namespace.

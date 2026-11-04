@@ -3,8 +3,8 @@ package algo_test
 import (
 	"testing"
 
-	"github.com/stretchr/testify/suite"
 	"github.com/gdrte/totp-go/internal/security/algo"
+	"github.com/stretchr/testify/suite"
 )
 
 func TestAlgo(t *testing.T) {
