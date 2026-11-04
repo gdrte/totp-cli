@@ -25,6 +25,25 @@ func ServeCommand() *cli.Command {
 	return &cli.Command{
 		Name:  "serve",
 		Usage: "Serve a REST API and MCP endpoint for generating codes and registering accounts.",
+		Description: `Serves the server database over HTTP for test suites and AI agents:
+
+   REST API      http://<listen>/api/v1   (see the README for endpoints)
+   MCP endpoint  http://<listen>/mcp      (Streamable HTTP)
+
+Both need "Authorization: Bearer <token>" (--api-token or TOTP_API_TOKEN).
+
+MCP tools: list_accounts, get_code (namespace, account, min_remaining),
+add_account (secret or otpauth:// uri) and delete_account.
+
+Add it to Claude Code:
+
+   claude mcp add --transport http totp http://127.0.0.1:8484/mcp \
+     --header "Authorization: Bearer $TOTP_API_TOKEN"
+
+Or to any MCP client's JSON config:
+
+   {"mcpServers": {"totp": {"type": "http", "url": "http://127.0.0.1:8484/mcp",
+     "headers": {"Authorization": "Bearer <token>"}}}}`,
 		Flags: []cli.Flag{
 			&cli.StringFlag{
 				Name:  "listen",
