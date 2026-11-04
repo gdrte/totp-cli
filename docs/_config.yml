@@ -1,4 +1,5 @@
-description: TOTP CLI tool written in Go.
+title: TOTP Authenticator
+description: 2FA codes for you, your tests and your agents — desktop app, MCP server, REST API and CLI.
 google_analytics:
 show_downloads: true
 theme: jekyll-theme-hacker
