@@ -27,7 +27,6 @@ linters:
             - github.com/glebarez/go-sqlite
             - github.com/kardianos/osext
             - github.com/urfave/cli/v2
-            - github.com/yitsushi/github-release-check
             - github.com/gdrte/totp-go
             - golang.org/x/term
             - gopkg.in/yaml.v3

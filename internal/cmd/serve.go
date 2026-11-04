@@ -10,12 +10,12 @@ import (
 	"path/filepath"
 	"syscall"
 
-	"github.com/urfave/cli/v2"
 	"github.com/gdrte/totp-go/internal/accountdb"
 	"github.com/gdrte/totp-go/internal/security"
 	"github.com/gdrte/totp-go/internal/server"
 	s "github.com/gdrte/totp-go/internal/storage"
 	"github.com/gdrte/totp-go/internal/terminal"
+	"github.com/urfave/cli/v2"
 )
 
 const defaultListenAddress = "127.0.0.1:8484"

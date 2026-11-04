@@ -5,9 +5,9 @@ import (
 	"os"
 	"slices"
 
-	"github.com/urfave/cli/v2"
 	s "github.com/gdrte/totp-go/internal/storage"
 	"github.com/gdrte/totp-go/internal/terminal"
+	"github.com/urfave/cli/v2"
 )
 
 // UpdateCommand is the subcommand to update a TOTP token options.

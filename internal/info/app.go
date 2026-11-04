@@ -1,7 +1,7 @@
 package info
 
 // RepoOwner defined the owner of the repo on GitHub.
-const RepoOwner = "yitsushi"
+const RepoOwner = "gdrte"
 
 // Name defined the application name.
 const Name = "totp-cli"

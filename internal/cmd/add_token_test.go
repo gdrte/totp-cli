@@ -4,9 +4,9 @@ import (
 	"bytes"
 	"testing"
 
-	"github.com/stretchr/testify/suite"
 	"github.com/gdrte/totp-go/internal/storage"
 	"github.com/gdrte/totp-go/internal/terminal"
+	"github.com/stretchr/testify/suite"
 )
 
 func TestAddToken(t *testing.T) {

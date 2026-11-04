@@ -4,8 +4,8 @@ import (
 	"bytes"
 	"testing"
 
-	"github.com/stretchr/testify/suite"
 	"github.com/gdrte/totp-go/internal/terminal"
+	"github.com/stretchr/testify/suite"
 )
 
 func TestChangePassword(t *testing.T) {
