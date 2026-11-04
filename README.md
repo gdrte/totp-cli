@@ -316,6 +316,15 @@ icon, which you can drag into `/Applications`. The icon's source is
 `cmd/totp-gui/appicon.svg`; after editing it, run `make appicon` (needs
 `rsvg-convert` from librsvg) to regenerate `appicon.png`.
 
+On Windows, `make build-gui-windows` cross-compiles `bin/totp-gui.exe` (with
+the app icon and no console window) from any OS, since Gio needs no cgo there.
+`make build-windows` builds the CLI as `bin/totp-cli.exe`. Both default to
+amd64; set `WINDOWS_ARCH=arm64` for ARM machines.
+
+The **Help** link in the window header (and on the unlock screen) opens usage
+notes for the desktop app, the CLI and the REST API, with copyable examples
+that use the window's own database path and API address.
+
 It takes the same `--db`, `--listen` and `--api-token` options (and
 `TOTP_SERVER_DB`, `TOTP_API_TOKEN` and `TOTP_PASS` variables) as `serve`.
 The password is asked for in the window unless `TOTP_PASS` is set. Pass
