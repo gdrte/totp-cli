@@ -27,8 +27,7 @@ linters:
             - github.com/glebarez/go-sqlite
             - github.com/kardianos/osext
             - github.com/urfave/cli/v2
-            - github.com/yitsushi/github-release-check
-            - github.com/yitsushi/totp-cli
+            - github.com/gdrte/totp-go
             - golang.org/x/term
             - gopkg.in/yaml.v3
     govet:
@@ -72,10 +71,10 @@ linters:
         path: internal/cmd/
       - linters:
           - wrapcheck
-        text: 'sig: func github.com/yitsushi/totp-cli/'
+        text: 'sig: func github.com/gdrte/totp-go/'
       - linters:
           - wrapcheck
-        text: 'sig: func \(\*?github.com/yitsushi/totp-cli/'
+        text: 'sig: func \(\*?github.com/gdrte/totp-go/'
       - linters:
           - gochecknoglobals
         path: internal/info

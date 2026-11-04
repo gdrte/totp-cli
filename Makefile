@@ -3,8 +3,8 @@ GO ?= go
 VERSION ?= $(shell git describe --tags --always --dirty 2>/dev/null || echo dev)
 COMMIT ?= $(shell git rev-parse --short HEAD 2>/dev/null || echo unknown)
 LDFLAGS := -s -w \
-	-X github.com/yitsushi/totp-cli/internal/info.Version=$(VERSION) \
-	-X github.com/yitsushi/totp-cli/internal/info.Commit=$(COMMIT)
+	-X github.com/gdrte/totp-go/internal/info.Version=$(VERSION) \
+	-X github.com/gdrte/totp-go/internal/info.Commit=$(COMMIT)
 
 .PHONY: build
 build:
@@ -23,7 +23,7 @@ GUI_APP := bin/TOTP Authenticator.app
 bundle-gui:
 	rm -rf "$(GUI_APP)"
 	$(GO) run gioui.org/cmd/gogio@v0.10.3 -target macos -arch $(shell $(GO) env GOARCH) -tags gui -ldflags "$(LDFLAGS)" \
-		-appid com.github.yitsushi.totp-cli -o "$(GUI_APP)" ./cmd/totp-gui
+		-appid com.github.gdrte.totp-go -o "$(GUI_APP)" ./cmd/totp-gui
 
 # Windows builds cross-compile from any OS (Gio needs no cgo on Windows).
 # Set WINDOWS_ARCH=arm64 for ARM machines.
@@ -37,7 +37,7 @@ build-windows:
 .PHONY: build-gui-windows
 build-gui-windows:
 	$(GO) run gioui.org/cmd/gogio@v0.10.3 -target windows -arch $(WINDOWS_ARCH) -tags gui -ldflags "$(LDFLAGS)" \
-		-appid com.github.yitsushi.totp-cli -o bin/totp-gui.exe ./cmd/totp-gui
+		-appid com.github.gdrte.totp-go -o bin/totp-gui.exe ./cmd/totp-gui
 
 # Regenerate the app icon from its SVG source (needs librsvg).
 .PHONY: appicon

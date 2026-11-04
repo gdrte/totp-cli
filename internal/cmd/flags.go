@@ -1,8 +1,8 @@
 package cmd
 
 import (
+	"github.com/gdrte/totp-go/internal/security"
 	"github.com/urfave/cli/v2"
-	"github.com/yitsushi/totp-cli/internal/security"
 )
 
 func flagAlgorithm() *cli.StringFlag {

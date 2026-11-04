@@ -1,7 +1,7 @@
 package cmd
 
 import (
-	"github.com/yitsushi/totp-cli/internal/storage"
+	"github.com/gdrte/totp-go/internal/storage"
 )
 
 // fakeStorage is an in-memory Storage implementation for tests.

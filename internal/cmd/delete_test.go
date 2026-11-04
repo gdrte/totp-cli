@@ -4,9 +4,9 @@ import (
 	"bytes"
 	"testing"
 
+	"github.com/gdrte/totp-go/internal/storage"
+	"github.com/gdrte/totp-go/internal/terminal"
 	"github.com/stretchr/testify/suite"
-	"github.com/yitsushi/totp-cli/internal/storage"
-	"github.com/yitsushi/totp-cli/internal/terminal"
 )
 
 func TestDelete(t *testing.T) {

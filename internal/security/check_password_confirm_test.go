@@ -3,8 +3,8 @@ package security_test
 import (
 	"testing"
 
+	"github.com/gdrte/totp-go/internal/security"
 	"github.com/stretchr/testify/assert"
-	"github.com/yitsushi/totp-cli/internal/security"
 )
 
 type PasswordPair struct {

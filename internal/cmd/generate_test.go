@@ -4,8 +4,8 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/gdrte/totp-go/internal/storage"
 	"github.com/stretchr/testify/suite"
-	"github.com/yitsushi/totp-cli/internal/storage"
 )
 
 func TestGenerate(t *testing.T) {

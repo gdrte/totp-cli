@@ -3,10 +3,10 @@ package cmd
 import (
 	"os"
 
+	"github.com/gdrte/totp-go/internal/security"
+	s "github.com/gdrte/totp-go/internal/storage"
+	"github.com/gdrte/totp-go/internal/terminal"
 	"github.com/urfave/cli/v2"
-	"github.com/yitsushi/totp-cli/internal/security"
-	s "github.com/yitsushi/totp-cli/internal/storage"
-	"github.com/yitsushi/totp-cli/internal/terminal"
 )
 
 // ChangePasswordCommand is the change-password subcommand.

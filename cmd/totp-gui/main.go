@@ -14,8 +14,8 @@ import (
 	"path/filepath"
 
 	"gioui.org/app"
-	"github.com/yitsushi/totp-cli/internal/gui"
-	"github.com/yitsushi/totp-cli/internal/storage"
+	"github.com/gdrte/totp-go/internal/gui"
+	"github.com/gdrte/totp-go/internal/storage"
 )
 
 const (

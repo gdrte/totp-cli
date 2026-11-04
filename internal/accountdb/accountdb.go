@@ -19,8 +19,8 @@ import (
 	"strings"
 
 	"filippo.io/age"
+	"github.com/gdrte/totp-go/internal/storage"
 	_ "github.com/glebarez/go-sqlite" // registers the "sqlite" database/sql driver
-	"github.com/yitsushi/totp-cli/internal/storage"
 )
 
 const (

@@ -4,9 +4,9 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/gdrte/totp-go/internal/storage"
+	"github.com/gdrte/totp-go/internal/terminal"
 	"github.com/urfave/cli/v2"
-	"github.com/yitsushi/totp-cli/internal/storage"
-	"github.com/yitsushi/totp-cli/internal/terminal"
 )
 
 // InstantCommand is the instant subcommand.

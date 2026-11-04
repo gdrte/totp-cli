@@ -1,53 +1,44 @@
-[![Go Report Card](https://goreportcard.com/badge/github.com/yitsushi/totp-cli)](https://goreportcard.com/report/github.com/yitsushi/totp-cli)
-[![Actions Status](https://github.com/yitsushi/totp-cli/actions/workflows/quality-check.yaml/badge.svg)](https://github.com/yitsushi/totp-cli/actions/workflows/quality-check.yaml)
-[![Coverage Status](https://coveralls.io/repos/github/yitsushi/totp-cli/badge.svg?branch=main)](https://coveralls.io/github/yitsushi/totp-cli?branch=main)
+[![Go Report Card](https://goreportcard.com/badge/github.com/gdrte/totp-go)](https://goreportcard.com/report/github.com/gdrte/totp-go)
+[![Actions Status](https://github.com/gdrte/totp-go/actions/workflows/quality-check.yaml/badge.svg)](https://github.com/gdrte/totp-go/actions/workflows/quality-check.yaml)
+[![Coverage Status](https://coveralls.io/repos/github/gdrte/totp-go/badge.svg?branch=main)](https://coveralls.io/github/gdrte/totp-go?branch=main)
 
 This is a simple TOTP _(Time-based One-time Password)_ CLI tool.
 TOTP is the most common mechanism for 2FA _(Two-Factor-Authentication)_.
 You can manage and organize your accounts with namespaces
 and protect your data with a password.
 
+It is a fork of [yitsushi/totp-cli](https://github.com/yitsushi/totp-cli)
+that adds a REST API and a desktop app for automated tests and agents, backed
+by an encrypted SQLite database. The winget, MacPorts and Homebrew packages
+named `totp-cli` install the upstream tool, which has none of these.
+
 ### Install
 
 Download the latest version of the application
-from the [releases page](https://github.com/yitsushi/totp-cli/releases/latest) or using the `go` tool:
+from the [releases page](https://github.com/gdrte/totp-go/releases/latest) or using the `go` tool:
 
 ```shell
-go install github.com/yitsushi/totp-cli@latest
+go install github.com/gdrte/totp-go@latest
 ```
 
-Users on Windows can install via [winget](https://learn.microsoft.com/en-us/windows/package-manager/winget/):
+`go install` names the binary `totp-go`; the release downloads and `make build`
+name it `totp-cli`, as used in the examples below.
+
+Or build from source:
 
 ```shell
-winget install --exact --id yitsushi.totp-cli
-```
-
-#### Alternative
-
-I'm not the maintainer of the MacPorts or the Homebrew package, if it's outdated
-please contact with the maintainer.
-
-
-Users on macOS can also install the package using [MacPorts](https://ports.macports.org/port/totp-cli/summary):
-```shell
-sudo port selfupdate
-sudo port install totp-cli
-```
-
-or [Homebrew](https://brew.sh/):
-
-```
-brew install totp-cli
+make build               # bin/totp-cli
+make build-gui           # bin/totp-gui (desktop app, needs cgo)
+make build-windows       # bin/totp-cli.exe
+make build-gui-windows   # bin/totp-gui.exe
 ```
 
 #### Signing key
 
-On release, there is a checksum file for all generated artefacts. This file is
-signed with the [66EA13043E6CDBA67A5D85AB71BD3AD93E8B6ABF](https://keys.openpgp.org/search?q=66EA13043E6CDBA67A5D85AB71BD3AD93E8B6ABF)
-GPG key.
+On release, there is a checksum file for all generated artefacts, signed with
+the GPG key configured for this repository's releases:
 
 ```
-gpg --keyserver keys.openpgp.org --recv-keys 66EA13043E6CDBA67A5D85AB71BD3AD93E8B6ABF
 gpg --verify totp-cli_{{.Version}}_checksums.txt.sig
 ```
 
@@ -69,13 +60,14 @@ NAME:
    totp-cli - Authy/Google Authenticator like TOTP CLI tool written in Go.
 
 USAGE:
-   totp-cli [global options] command [command options] [arguments...]
+   totp-cli [global options] command [command options]
 
 VERSION:
-   v1.8.0
+   dev
 
-AUTHOR:
-   Efertone <efertone@pm.me>
+AUTHORS:
+   Devanand GangiReddy
+   Efertone (original totp-cli) <victoria@efertone.me>
 
 COMMANDS:
    add-token, add   Add new token.
@@ -90,6 +82,7 @@ COMMANDS:
    set-prefix       Set prefix for a token.
    set-length       Set length for a token.
    rename           Rename an account or namespace
+   update           Update the TOTP token options.
    help, h          Shows a list of commands or help for one command
 
 GLOBAL OPTIONS:

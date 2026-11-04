@@ -1,6 +1,6 @@
-[![Go Report Card](https://goreportcard.com/badge/github.com/yitsushi/totp-cli)](https://goreportcard.com/report/github.com/yitsushi/totp-cli)
-[![Actions Status](https://github.com/yitsushi/totp-cli/actions/workflows/quality-check.yaml/badge.svg)](https://github.com/yitsushi/totp-cli/actions/workflows/quality-check.yaml)
-[![Coverage Status](https://coveralls.io/repos/github/yitsushi/totp-cli/badge.svg?branch=main)](https://coveralls.io/github/yitsushi/totp-cli?branch=main)
+[![Go Report Card](https://goreportcard.com/badge/github.com/gdrte/totp-go)](https://goreportcard.com/report/github.com/gdrte/totp-go)
+[![Actions Status](https://github.com/gdrte/totp-go/actions/workflows/quality-check.yaml/badge.svg)](https://github.com/gdrte/totp-go/actions/workflows/quality-check.yaml)
+[![Coverage Status](https://coveralls.io/repos/github/gdrte/totp-go/badge.svg?branch=main)](https://coveralls.io/github/gdrte/totp-go?branch=main)
 
 This is a simple TOTP _(Time-based One-time Password)_ CLI tool.
 TOTP is the most common mechanism for 2FA _(Two-Factor-Authentication)_.
@@ -10,7 +10,7 @@ and protect your data with a password.
 ### Install
 
 Download the latest version of the application
-from the [releases page](https://github.com/yitsushi/totp-cli/releases/latest).
+from the [releases page](https://github.com/gdrte/totp-go/releases/latest).
 
 Users on macOS can also install the package using [MacPorts](https://ports.macports.org/port/totp-cli/summary):
 

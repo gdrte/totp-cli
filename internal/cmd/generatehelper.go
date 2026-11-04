@@ -4,9 +4,9 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/yitsushi/totp-cli/internal/security"
-	"github.com/yitsushi/totp-cli/internal/security/algo"
-	s "github.com/yitsushi/totp-cli/internal/storage"
+	"github.com/gdrte/totp-go/internal/security"
+	"github.com/gdrte/totp-go/internal/security/algo"
+	s "github.com/gdrte/totp-go/internal/storage"
 )
 
 func formatCode(code string, remaining int64, showRemaining bool) string {

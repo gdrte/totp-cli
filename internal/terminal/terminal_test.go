@@ -5,8 +5,8 @@ import (
 	"io"
 	"testing"
 
+	"github.com/gdrte/totp-go/internal/terminal"
 	"github.com/stretchr/testify/suite"
-	"github.com/yitsushi/totp-cli/internal/terminal"
 )
 
 func prepareIO(input []byte) (io.Reader, *bytes.Buffer, *bytes.Buffer) {

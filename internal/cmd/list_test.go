@@ -3,8 +3,8 @@ package cmd
 import (
 	"testing"
 
+	"github.com/gdrte/totp-go/internal/storage"
 	"github.com/stretchr/testify/suite"
-	"github.com/yitsushi/totp-cli/internal/storage"
 )
 
 func TestList(t *testing.T) {

@@ -1,4 +1,4 @@
-module github.com/yitsushi/totp-cli
+module github.com/gdrte/totp-go
 
 go 1.26.3
 

@@ -16,8 +16,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/yitsushi/totp-cli/internal/accountdb"
-	"github.com/yitsushi/totp-cli/internal/storage"
+	"github.com/gdrte/totp-go/internal/accountdb"
+	"github.com/gdrte/totp-go/internal/storage"
 )
 
 const (

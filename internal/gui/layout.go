@@ -20,8 +20,8 @@ import (
 	"gioui.org/unit"
 	"gioui.org/widget"
 	"gioui.org/widget/material"
-	"github.com/yitsushi/totp-cli/internal/security"
-	"github.com/yitsushi/totp-cli/internal/server"
+	"github.com/gdrte/totp-go/internal/security"
+	"github.com/gdrte/totp-go/internal/server"
 )
 
 type (

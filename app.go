@@ -4,9 +4,9 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/gdrte/totp-go/internal/cmd"
+	"github.com/gdrte/totp-go/internal/info"
 	"github.com/urfave/cli/v2"
-	"github.com/yitsushi/totp-cli/internal/cmd"
-	"github.com/yitsushi/totp-cli/internal/info"
 )
 
 func newApplication() *cli.App {
@@ -33,7 +33,8 @@ func newApplication() *cli.App {
 			cmd.UpdateCommand(),
 		},
 		Authors: []*cli.Author{
-			{Name: "Efertone", Email: "victoria@efertone.me"},
+			{Name: "Devanand GangiReddy"},
+			{Name: "Efertone (original totp-cli)", Email: "victoria@efertone.me"},
 		},
 		EnableBashCompletion: true,
 		ExitErrHandler: func(ctx *cli.Context, err error) {

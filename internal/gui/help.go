@@ -13,7 +13,7 @@ import (
 	"gioui.org/op"
 	"gioui.org/widget"
 	"gioui.org/widget/material"
-	"github.com/yitsushi/totp-cli/internal/info"
+	"github.com/gdrte/totp-go/internal/info"
 )
 
 // helpTopic is a tab of the help screen.

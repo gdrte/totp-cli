@@ -11,9 +11,9 @@ import (
 	"testing"
 	"time"
 
+	"github.com/gdrte/totp-go/internal/accountdb"
+	"github.com/gdrte/totp-go/internal/storage"
 	"github.com/stretchr/testify/suite"
-	"github.com/yitsushi/totp-cli/internal/accountdb"
-	"github.com/yitsushi/totp-cli/internal/storage"
 )
 
 const (

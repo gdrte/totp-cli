@@ -5,10 +5,10 @@ import (
 	"testing"
 	"time"
 
+	"github.com/gdrte/totp-go/internal/security"
+	"github.com/gdrte/totp-go/internal/security/algo"
+	"github.com/gdrte/totp-go/internal/storage"
 	"github.com/stretchr/testify/suite"
-	"github.com/yitsushi/totp-cli/internal/security"
-	"github.com/yitsushi/totp-cli/internal/security/algo"
-	"github.com/yitsushi/totp-cli/internal/storage"
 )
 
 func TestGenerateOTPCodeSuit(t *testing.T) {

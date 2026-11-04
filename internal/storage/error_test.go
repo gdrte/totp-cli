@@ -3,8 +3,8 @@ package storage_test
 import (
 	"testing"
 
+	"github.com/gdrte/totp-go/internal/storage"
 	"github.com/stretchr/testify/suite"
-	"github.com/yitsushi/totp-cli/internal/storage"
 )
 
 func TestStorageError(t *testing.T) {

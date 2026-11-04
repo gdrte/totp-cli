@@ -9,7 +9,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/yitsushi/totp-cli/internal/security/algo"
+	"github.com/gdrte/totp-go/internal/security/algo"
 )
 
 const (

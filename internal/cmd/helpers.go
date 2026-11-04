@@ -1,8 +1,8 @@
 package cmd
 
 import (
-	s "github.com/yitsushi/totp-cli/internal/storage"
-	"github.com/yitsushi/totp-cli/internal/terminal"
+	s "github.com/gdrte/totp-go/internal/storage"
+	"github.com/gdrte/totp-go/internal/terminal"
 )
 
 // AccountOptions groups the optional per-account fields shared by add-token

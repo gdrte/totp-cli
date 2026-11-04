@@ -5,9 +5,9 @@ import (
 	"os"
 	"time"
 
+	s "github.com/gdrte/totp-go/internal/storage"
+	"github.com/gdrte/totp-go/internal/terminal"
 	"github.com/urfave/cli/v2"
-	s "github.com/yitsushi/totp-cli/internal/storage"
-	"github.com/yitsushi/totp-cli/internal/terminal"
 )
 
 // GenerateCommand is the subcommand to generate a TOTP token.
