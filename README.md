@@ -46,8 +46,27 @@ Download the latest release from the
 [releases page](https://github.com/gdrte/totp-go/releases/latest), or build
 from source:
 
+The quickest way to get the desktop app is to build and install it for the OS
+you're on:
+
+```shell
+make install-gui      # build and install the desktop app for this OS
+make uninstall-gui    # remove it again
+```
+
+| OS      | `make install-gui` installs                                                                  |
+|---------|----------------------------------------------------------------------------------------------|
+| macOS   | `TOTP Authenticator.app` into `/Applications` (set `MACOS_APPS=$HOME/Applications` to change) |
+| Windows | `totp-gui.exe` into `%LOCALAPPDATA%\Programs\TOTP Authenticator`, with a Start menu entry    |
+| Linux   | `totp-gui` into `~/.local/bin`, with its icon and a menu entry (set `PREFIX` to change)       |
+
+On Windows, run it from Git Bash or another shell with `make`; it needs no
+admin rights. `make gui` only builds the app for this OS, without installing
+it. The individual targets are:
+
 | Command                  | Builds                                                    |
 |--------------------------|-----------------------------------------------------------|
+| `make gui`               | The desktop app for this OS (one of the three below)      |
 | `make build-gui`         | `bin/totp-gui`, the desktop app (needs cgo)               |
 | `make bundle-gui`        | `bin/TOTP Authenticator.app` with its icon (macOS only)   |
 | `make build-gui-windows` | `bin/totp-gui.exe` with its icon, no console window       |
